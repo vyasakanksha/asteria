@@ -479,6 +479,7 @@ syn keyword cConstant GL_QUADS GL_QUAD_STRIP GL_POLYGON GL_ARRAY_BUFFER
 syn keyword cConstant GL_ELEMENT_ARRAY_BUFFER GL_STREAM_DRAW GL_STREAM_READ
 syn keyword cConstant GL_STREAM_COPY GL_STATIC_DRAW GL_STATIC_READ GL_STATIC_COPY
 syn keyword cConstant GL_DYNAMIC_DRAW GL_DYNAMIC_READ GL_DYNAMIC_COPY
+syn keyword cConstand GL_VERTEX_SHADER GL_FRAGMENT_SHADER
 
 " Accept %: for # (C99)
 syn region      cPreCondit      start="^\s*\(%:\|#\)\s*\(if\|ifdef\|ifndef\|elif\)\>" skip="\\$" end="$"  keepend contains=cComment,cCommentL,cCppString,cCharacter,cCppParen,cParenError,cNumbers,cCommentError,cSpaceError
