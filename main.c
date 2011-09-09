@@ -28,6 +28,7 @@
 
 #include "libInclude.h"
 #include "gfxInit.h"
+#include "gfxShader.h"
 
 #include "vMath.h"
 
@@ -39,8 +40,10 @@ int main( int argc, char * argv[] ) {
 
    md5SimpleBindPose * model;
 
+   GLuint vtx, frg, prog;
 
-   if ( NULL == ( model = md5GetSimpleBindPose( "cube" ) ) ) {
+
+   if ( NULL == ( model = md5GetSimpleBindPose( "robot" ) ) ) {
       fprintf( stderr, "Failure to load test model...\n" );
       exit( 1 );
    }
@@ -50,7 +53,7 @@ int main( int argc, char * argv[] ) {
    SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, 1 );
    SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 4 );
 
-   gfxSetupOsWindow( 1600, 900 );
+   gfxSetupOsWindow( 800, 600 );
    gfxInitializeOpenGL();
 
    if ( GLEW_OK != glewInit() ) {
@@ -73,6 +76,12 @@ int main( int argc, char * argv[] ) {
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT0);
 
+   vtx  = gfxMakeShader( "shader/test.vtx" );
+   frg  = gfxMakeShader( "shader/test.frg" );
+   prog = gfxMakeProgram( vtx, frg );
+   
+   glUseProgram( prog );
+
    glEnableClientState( GL_VERTEX_ARRAY );
    glEnableClientState( GL_NORMAL_ARRAY );
 
@@ -83,8 +92,8 @@ int main( int argc, char * argv[] ) {
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
       glLoadIdentity();
-      glTranslatef( 0.0f, -0.5f, -3.0f );
-      glRotatef( 30.0f, 1.0f, 0.0f, 0.0f );
+      glTranslatef( 0.0f, 0.0f, -3.0f );
+      glRotatef( 180.0f, 1.0f, 0.0f, 0.0f );
       glRotatef( 3.0f * i, 0.0f, 1.0f, 0.0f );
       glDrawElements( GL_TRIANGLES, model->numIdx, GL_UNSIGNED_INT, model->idxs );
 

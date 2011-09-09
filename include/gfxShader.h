@@ -18,53 +18,14 @@
  *                                                                          *
  ****************************************************************************/
 
-/* gfxInit.c */
+/* gfxShader.h */
+#ifndef _GFX_SHADER_H_
+#define _GFX_SHADER_H_
 
 #include "libInclude.h"
 
-#include "gfxInit.h"
+GLuint gfxMakeShader( const char * fName );
 
-/* These are presently very simple configurations. As the game matures and   *
- * more advanced configurations become necessary, this file will evolve.     */
+GLuint gfxMakeProgram( GLuint vtx, GLuint frg );
 
-void gfxResizeScreen( GLuint width, GLuint height ) {
-
-   /* Aspect ratio of our screen. */
-   GLfloat ratio = (GLfloat)width / (GLfloat)height;
-
-   /* Let OpenGL know we're working with a width by height context. */
-   glViewport( 0, 0, (GLsizei)width, (GLsizei)height );
-
-   /* Set up our perspective calculations the way we want them. */
-   glMatrixMode( GL_PROJECTION );
-   glLoadIdentity();
-   gluPerspective( 45.0f, ratio, 0.01f, 100.0f );
-
-   glMatrixMode( GL_MODELVIEW );
-}
-
-void gfxInitializeOpenGL( void ) {
-
-   /* Clear the screen to Black between frames. */
-   glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-
-   /* Set Depth clear value to 1.0f */
-   glClearDepth( 1.0f );
-
-   /* Turn on depth testing. */
-   glEnable( GL_DEPTH_TEST );
-   glDepthFunc( GL_LEQUAL );
-
-}
-
-/* FIXME: This will be moved into the gfx Configuration portion of the main  *
- * Game State structure at a later date.                                     */
-static SDL_Surface * gfxScreen;
-
-void gfxSetupOsWindow( GLuint width, GLuint height ) {
-   gfxScreen = SDL_SetVideoMode( width, height, 0, SDL_OPENGL | SDL_HWSURFACE );
-   if ( !gfxScreen ) {
-      fprintf( stderr, "Failed to do stuff1111!!!\n" );
-   }
-   gfxResizeScreen( width, height );
-}
+#endif /* gfxShader.h */
