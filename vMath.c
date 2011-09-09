@@ -122,6 +122,30 @@ vec4 * v4Add( vec4 * rop, const vec4 * a, const vec4 * b ) {
    return rop;
 }
 
+vec2 * v2Sub( vec2 * rop, const vec2 * a, const vec2 * b ) {
+   rop->x = a->x - b->x;
+   rop->y = a->y - b->y;
+
+   return rop;
+}
+
+vec3 * v3Sub( vec3 * rop, const vec3 * a, const vec3 * b ) {
+   rop->x = a->x - b->x;
+   rop->y = a->y - b->y;
+   rop->z = a->z - b->z;
+
+   return rop;
+}
+
+vec4 * v4Sub( vec4 * rop, const vec4 * a, const vec4 * b ) {
+   rop->x = a->x - b->x;
+   rop->y = a->y - b->y;
+   rop->z = a->z - b->z;
+   rop->w = a->w - b->w;
+
+   return rop;
+}
+
 vec2 * v2Normalize( vec2 * op ) {
    return v2Scale( op, 1.0f / sqrt( v2Dot( op, op ) ), op );
 }

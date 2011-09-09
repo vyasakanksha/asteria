@@ -85,6 +85,13 @@ vec3 * v3Add( vec3 * rop, const vec3 * a, const vec3 * b );
 vec4 * v4Add( vec4 * rop, const vec4 * a, const vec4 * b );
 
 
+vec2 * v2Sub( vec2 * rop, const vec2 * a, const vec2 * b );
+
+vec3 * v3Sub( vec3 * rop, const vec3 * a, const vec3 * b );
+
+vec4 * v4Sub( vec4 * rop, const vec4 * a, const vec4 * b );
+
+
 vec2 * v2Normalize( vec2 * op );
 
 vec3 * v3Normalize( vec3 * op );
