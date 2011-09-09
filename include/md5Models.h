@@ -78,6 +78,7 @@ typedef struct md5MeshData {
 typedef struct md5SimpleBindPose {
    int      numVerts;
    vec4   * verts;
+   vec3   * norms;
 
    int      numIdx;
    GLuint * idxs;

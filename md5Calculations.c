@@ -23,7 +23,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+
 #include "md5Models.h"
+
 #include <unistd.h>
 
 /* Bison generated header. */
@@ -47,7 +49,8 @@ md5SimpleBindPose * md5GetSimpleBindPose( const char * meshName ) {
    strcat( meshFile, ".md5mesh" );
 
    if ( NULL == ( md5 = fopen( meshFile, "r" ) ) ) {
-      fprintf( stderr, "Could not open '%s': %s\n", meshFile, strerror( errno ) );
+      fprintf( stderr, "Could not open '%s': %s\n",
+                       meshFile, strerror( errno ) );
       return NULL;
    }
 
@@ -61,6 +64,10 @@ md5SimpleBindPose * md5GetSimpleBindPose( const char * meshName ) {
    /* FIXME: Only accounts for models with a single mesh. */
    out->numVerts = meshDat.meshes[0].numVerts;
    out->verts    = malloc( sizeof( vec4 ) * out->numVerts );
+   out->norms    = malloc( sizeof( vec3 ) * out->numVerts );
+
+   /* Pray for IEEE floating points. */
+   memset( out->norms, 0, sizeof( vec3 ) * out->numVerts );
 
    /* FIXME: Only accounts for vertices with one weight. */
    for ( i = 0; i < out->numVerts; ++i ) {
@@ -77,9 +84,34 @@ md5SimpleBindPose * md5GetSimpleBindPose( const char * meshName ) {
    out->idxs     = malloc( sizeof( GLuint ) * out->numIdx );
 
    for ( i = 0; i < meshDat.meshes[0].numTris; i++ ) {
+      vec3 A, B, tmp3;
+      
       out->idxs[( i * 3 ) + 0] = meshDat.meshes[0].tris[i].vtx1;
       out->idxs[( i * 3 ) + 1] = meshDat.meshes[0].tris[i].vtx2;
       out->idxs[( i * 3 ) + 2] = meshDat.meshes[0].tris[i].vtx3;
+
+      /* A and B are vectors in the direction of the edges of the triangle. */
+      v3Sub( &A, &( out->verts[out->idxs[( i * 3 ) + 1]].xyz ),
+                 &( out->verts[out->idxs[( i * 3 ) + 0]].xyz ) );
+
+      v3Sub( &B, &( out->verts[out->idxs[( i * 3 ) + 2]].xyz ),
+                 &( out->verts[out->idxs[( i * 3 ) + 0]].xyz ) );
+
+      v3Add( out->norms + out->idxs[( i * 3 ) + 0],
+             out->norms + out->idxs[( i * 3 ) + 0],
+             v3Cross( &tmp3, &B, &A ) );
+
+      v3Add( out->norms + out->idxs[( i * 3 ) + 1],
+             out->norms + out->idxs[( i * 3 ) + 1],
+             &tmp3 );
+
+      v3Add( out->norms + out->idxs[( i * 3 ) + 2],
+             out->norms + out->idxs[( i * 3 ) + 2],
+             &tmp3 );
+   }
+
+   for ( i = 0; i < out->numVerts; ++i ) {
+      v3Normalize( out->norms + i );
    }
 
    return out;

@@ -20,6 +20,7 @@
 
 /* main.c */
 #include <stdio.h>
+#include <stdio.h>
 
 #include <unistd.h> /* For sleep(). */
 
@@ -39,9 +40,15 @@ int main( int argc, char * argv[] ) {
    md5SimpleBindPose * model;
 
 
-   model = md5GetSimpleBindPose( "robot" );
+   if ( NULL == ( model = md5GetSimpleBindPose( "cube" ) ) ) {
+      fprintf( stderr, "Failure to load test model...\n" );
+      exit( 1 );
+   }
 
    SDL_Init( SDL_INIT_EVERYTHING );
+
+   SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, 1 );
+   SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 4 );
 
    gfxSetupOsWindow( 1600, 900 );
    gfxInitializeOpenGL();
@@ -51,16 +58,34 @@ int main( int argc, char * argv[] ) {
       exit( 1 );
    }
 
-   glTranslatef( 0.0f, 0.0f, -5.0f );
+
+   /* Makeshift lighting. */
+   GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+   GLfloat mat_shininess[] = { 50.0 };
+   GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
+   glClearColor (0.0, 0.0, 0.0, 0.0);
+   glShadeModel (GL_SMOOTH);
+
+   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+   glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+   glEnable(GL_LIGHTING);
+   glEnable(GL_LIGHT0);
 
    glEnableClientState( GL_VERTEX_ARRAY );
+   glEnableClientState( GL_NORMAL_ARRAY );
 
    glVertexPointer( 3, GL_FLOAT, sizeof( vec4 ), model->verts );
+   glNormalPointer( GL_FLOAT, sizeof( vec3 ), model->norms );
 
    for ( i = 0; i < 200; ++i ) {
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-      glRotatef( 3.0f, 0.0f, 1.0f, 0.0f );
+      glLoadIdentity();
+      glTranslatef( 0.0f, -0.5f, -3.0f );
+      glRotatef( 30.0f, 1.0f, 0.0f, 0.0f );
+      glRotatef( 3.0f * i, 0.0f, 1.0f, 0.0f );
       glDrawElements( GL_TRIANGLES, model->numIdx, GL_UNSIGNED_INT, model->idxs );
 
       glFinish(); 
