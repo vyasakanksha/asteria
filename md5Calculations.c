@@ -99,7 +99,7 @@ md5SimpleBindPose * md5GetSimpleBindPose( const char * meshName ) {
 
       v3Add( out->norms + out->idxs[( i * 3 ) + 0],
              out->norms + out->idxs[( i * 3 ) + 0],
-             v3Cross( &tmp3, &B, &A ) );
+             v3Normalize( v3Cross( &tmp3, &B, &A ) ) );
 
       v3Add( out->norms + out->idxs[( i * 3 ) + 1],
              out->norms + out->idxs[( i * 3 ) + 1],
