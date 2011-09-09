@@ -9,7 +9,9 @@ if exists("b:current_syntax")
 endif
 
 " OpenGL Types
-syn keyword cType    GLfloat GLdouble GLbyte GLubyte GLint GLuint GLsizei
+syn keyword cType    GLfloat GLdouble GLbyte GLubyte GLint GLuint
+syn keyword cType    GLsizei GLchar
+
 
 " 'cConditional' is a hack to get the coloring I want.
 syn keyword cConditional __attribute__
@@ -479,6 +481,10 @@ syn keyword cConstant GL_QUADS GL_QUAD_STRIP GL_POLYGON GL_ARRAY_BUFFER
 syn keyword cConstant GL_ELEMENT_ARRAY_BUFFER GL_STREAM_DRAW GL_STREAM_READ
 syn keyword cConstant GL_STREAM_COPY GL_STATIC_DRAW GL_STATIC_READ GL_STATIC_COPY
 syn keyword cConstant GL_DYNAMIC_DRAW GL_DYNAMIC_READ GL_DYNAMIC_COPY
+<<<<<<< Updated upstream
+=======
+syn keyword cConstant GL_VERTEX_SHADER GL_FRAGMENT_SHADER
+>>>>>>> Stashed changes
 
 " Accept %: for # (C99)
 syn region      cPreCondit      start="^\s*\(%:\|#\)\s*\(if\|ifdef\|ifndef\|elif\)\>" skip="\\$" end="$"  keepend contains=cComment,cCommentL,cCppString,cCharacter,cCppParen,cParenError,cNumbers,cCommentError,cSpaceError
