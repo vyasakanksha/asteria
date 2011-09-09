@@ -20,6 +20,8 @@
 
 /* gfxShader.c */
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -28,7 +30,7 @@
 #include "libInclude.h"
 
 /* Support shader source files up to 256k in size. */
-static char shaderBuffer[1 << 18];
+static GLchar shaderBuffer[1 << 18];
 
 /* FIXME: Need to find a way to report error messages. */
 GLuint gfxLoadShader( const char * shader ) {
@@ -41,11 +43,26 @@ GLuint gfxLoadShader( const char * shader ) {
    stat( shader, &st );
 
    if ( st.st_size > ( 1 << 18 ) ) {
+      fprintf( stderr, "File '%s' too big!\n", shader );
       return 0;
    } else if ( NULL == ( input = fopen( shader, "r" ) ) ) {
+      fprintf( stderr, "Could not open '%s': %s\n",
+                        shader, strerror( errno ) );
       return 0;
    } else if ( NULL == ( ext = strrchr( shader, '.' ) ) ) {
+      fprintf( stderr, "File '%s' must have extension '.vtx' or '.frg'\n",
+                        shader );
       fclose( input );
+      return 0;
+   }
+
+   if ( 0 == strcmp( ext, ".vtx" ) ) {
+      ret = glCreateShader( GL_VERTEX_SHADER );
+   } else if ( 0 == strcmp( ext, ".frg" ) ) {
+      ret = glCreateShader( GL_FRAGMENT_SHADER );
+   } else {
+      fprintf( stderr, "File '%s' must have extension '.vtx' or '.frg'\n",
+                        shader );
       return 0;
    }
 
@@ -53,16 +70,15 @@ GLuint gfxLoadShader( const char * shader ) {
    shaderBuffer[read] = '\0';
    fclose( input );
 
-   if ( 0 == strcmp( ext, ".vtx" ) ) {
-      ret = glCreateShader( GL_VERTEX_SHADER );
-   } else if ( 0 == strcmp( ext, ".frg" ) ) {
-      ret = glCreateShader( GL_FRAGMENT_SHADER );
-   } else {
-      return 0;
-   }
-
-   glShaderSource( ret, 1, (const GLchar **)&shaderBuffer, NULL );
+   glShaderSource( ret, 1, (const GLchar **)&shaderBuffer, &read );
    glCompileShader( ret );
+
+   glGetShaderiv( ret, GL_COMPILE_STATUS, &read );
+   if ( read != GL_TRUE ) {
+      glGetShaderInfoLog( ret, 1 << 18, &read, shaderBuffer );
+      shaderBuffer[read] = '\0';
+      fprintf( stderr, "%s", shaderBuffer );
+   }
 
    return ret;
 }

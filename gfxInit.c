@@ -62,8 +62,7 @@ void gfxInitializeOpenGL( void ) {
 static SDL_Surface * gfxScreen;
 
 void gfxSetupOsWindow( GLuint width, GLuint height ) {
-   gfxScreen = SDL_SetVideoMode( width, height, 0, SDL_OPENGL | SDL_HWSURFACE
-                                                 | SDL_FULLSCREEN );
+   gfxScreen = SDL_SetVideoMode( width, height, 0, SDL_OPENGL | SDL_HWSURFACE );
    if ( !gfxScreen ) {
       fprintf( stderr, "Failed to do stuff1111!!!\n" );
    }

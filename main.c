@@ -28,6 +28,7 @@
 
 #include "libInclude.h"
 #include "gfxInit.h"
+#include "gfxShader.h"
 
 #include "vMath.h"
 
@@ -39,8 +40,10 @@ int main( int argc, char * argv[] ) {
 
    md5SimpleBindPose * model;
 
+   GLuint frg, vtx, prog;
 
-   if ( NULL == ( model = md5GetSimpleBindPose( "cube" ) ) ) {
+
+   if ( NULL == ( model = md5GetSimpleBindPose( "robot" ) ) ) {
       fprintf( stderr, "Failure to load test model...\n" );
       exit( 1 );
    }
@@ -65,6 +68,14 @@ int main( int argc, char * argv[] ) {
    GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
    glClearColor (0.0, 0.0, 0.0, 0.0);
    glShadeModel (GL_SMOOTH);
+
+   vtx  = gfxLoadShader( "shader/test.vtx" );
+   frg  = gfxLoadShader( "shader/test.frg" );
+   prog = gfxMakeShaderProgram( vtx, frg );
+   fprintf( stderr, "vtx:  %d\nfrg:  %d\nprog: %d\n", vtx, frg, prog );
+
+   glUseProgram( prog );
+
 
    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
