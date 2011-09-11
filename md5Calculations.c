@@ -34,6 +34,26 @@
 extern int md5meshparse( md5MeshData * ); 
 extern void md5meshset_in( FILE * );
 
+md5BaseMesh * md5LoadMesh( FILE * fp ) {
+   md5BaseMesh * ret = malloc( sizeof( md5BaseMesh ) );
+   md5MeshData meshDat;
+
+   vec3 * bindPoseVerts, * bindPoseNorms;
+
+   md5meshset_in( fp );
+
+   if ( 0 != md5meshparse( &meshDat ) ) {
+      free( ret );
+      fclose( fp );
+      return NULL;
+   }
+
+   // TODO: Calculate bind-pose vertices.
+   //     : Calculate bind-pose normals.
+   //     : Transpose normals back into joint local space.
+   //     : Generate  vertex arrays to be passed to the md5 shader.
+}
+
 md5SimpleBindPose * md5GetSimpleBindPose( const char * meshName ) {
    char meshFile[strlen( meshName ) + 9];
    FILE * md5;

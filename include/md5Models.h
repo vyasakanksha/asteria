@@ -75,15 +75,36 @@ typedef struct md5MeshData {
 } md5MeshData;
 
 
-typedef struct md5SimpleBindPose {
-   int      numVerts;
-   vec3   * verts;
-   vec3   * norms;
+/* The md5BaseMesh structure defines everything needed to render the mesh   *
+ * with its bind-pose skeleton. All that needs to be changed to animate it  *
+ * is the position of the bones.                                            */
+typedef struct md5BaseMesh {
+   int numVerts; // The number of vertices making up the model.
 
-   int      numIdx;
-   GLuint * idxs;
-} md5SimpleBindPose;
+   GLint    * joints[4]; // The index of the joint associated with each of
+                         // the weights associated with the given vertex.
 
-md5SimpleBindPose * md5GetSimpleBindPose( const char * meshName );
+   GLfloat  * biases[4]; // The bias of each weight. In order for correct
+                         // behaviour, these should add up to one.
+
+   /* The parens here make them arrays of four pointers, instead of         *
+    * pointers to arrays of four.                                           */
+   vec3    (* positions)[4]; // The offset of each of the ( up to ) four 
+                             // weights associated with the given vertex.
+
+   vec3    (* normals)[4];   // The normals of each of these weights in joint
+                             // local space.
+
+   int numTris;      // The number of triangles in the mesh.
+
+   GLuint * indices; // The indices of the vertices to be drawn, as per
+                     // OpenGL vertex arrays.
+
+   int numJoints;     // The number of joints in the skeleton.
+
+   md5Joint * joints; // Data for each of the skeleton's joints.
+} md5BaseMesh;
+
+md5BaseMesh * md5LoadMesh( FILE * fp );
 
 #endif /* md5Models.h */
