@@ -1,4 +1,8 @@
+varying vec3 normal;
 
 void main() {
-   gl_FragColor = vec4( 0.2f, 0.2f, 1.0f, 1.0f );
+   normal = normalize( normal );
+   float intensity = clamp( dot( normal, normalize( gl_LightSource[0].position
+   ) ), 0.2f, 1.0f );
+   gl_FragColor = intensity * gl_Color;
 }
