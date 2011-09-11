@@ -40,10 +40,7 @@ md5SimpleBindPose * md5GetSimpleBindPose( const char * meshName ) {
    md5SimpleBindPose * out = malloc( sizeof( md5SimpleBindPose ) );
    md5MeshData         meshDat;
 
-   vec4 tmp4;
-
    int i;
-
 
    strcpy( meshFile, meshName );
    strcat( meshFile, ".md5mesh" );
@@ -63,7 +60,7 @@ md5SimpleBindPose * md5GetSimpleBindPose( const char * meshName ) {
 
    /* FIXME: Only accounts for models with a single mesh. */
    out->numVerts = meshDat.meshes[0].numVerts;
-   out->verts    = malloc( sizeof( vec4 ) * out->numVerts );
+   out->verts    = malloc( sizeof( vec3 ) * out->numVerts );
    out->norms    = malloc( sizeof( vec3 ) * out->numVerts );
 
    /* Pray for IEEE floating points. */
@@ -74,44 +71,34 @@ md5SimpleBindPose * md5GetSimpleBindPose( const char * meshName ) {
       int wIdx  = meshDat.meshes[0].verts[i].firstWeight;
       md5Weight * weight = meshDat.meshes[0].weights + wIdx;
       md5Joint  * skel   = meshDat.joints + weight->joint;
-      qtMul( out->verts + i, &( skel->orientation ), &( weight->position ) );
-      qtConjugate( &tmp4, &( skel->orientation ) );
-      qtMul( out->verts + i, out->verts + i, &tmp4 );
-      v4Add( out->verts + i, out->verts + i, &( skel->position ) );
+      out->verts[i] = qtRotate( skel->orientation, weight->position );
+      out->verts[i] += skel->position;
    }
 
    out->numIdx   = meshDat.meshes[0].numTris * 3;
    out->idxs     = malloc( sizeof( GLuint ) * out->numIdx );
 
    for ( i = 0; i < meshDat.meshes[0].numTris; i++ ) {
-      vec3 A, B, tmp3;
-      
+      vec3 A, B;
+
       out->idxs[( i * 3 ) + 0] = meshDat.meshes[0].tris[i].vtx1;
       out->idxs[( i * 3 ) + 1] = meshDat.meshes[0].tris[i].vtx2;
       out->idxs[( i * 3 ) + 2] = meshDat.meshes[0].tris[i].vtx3;
 
-      /* A and B are vectors in the direction of the edges of the triangle. */
-      v3Sub( &A, &( out->verts[out->idxs[( i * 3 ) + 1]].xyz ),
-                 &( out->verts[out->idxs[( i * 3 ) + 0]].xyz ) );
+      A = out->verts[out->idxs[( i * 3 ) + 1]]
+        - out->verts[out->idxs[( i * 3 ) + 0]];
 
-      v3Sub( &B, &( out->verts[out->idxs[( i * 3 ) + 2]].xyz ),
-                 &( out->verts[out->idxs[( i * 3 ) + 0]].xyz ) );
+      B = out->verts[out->idxs[( i * 3 ) + 2]]
+        - out->verts[out->idxs[( i * 3 ) + 0]];
 
-      v3Add( out->norms + out->idxs[( i * 3 ) + 0],
-             out->norms + out->idxs[( i * 3 ) + 0],
-             v3Cross( &tmp3, &B, &A ) );
+      out->norms[out->idxs[( i * 3 ) + 0]] += v3Cross( B, A );
+      out->norms[out->idxs[( i * 3 ) + 1]] += v3Cross( B, A );
+      out->norms[out->idxs[( i * 3 ) + 2]] += v3Cross( B, A );
 
-      v3Add( out->norms + out->idxs[( i * 3 ) + 1],
-             out->norms + out->idxs[( i * 3 ) + 1],
-             &tmp3 );
-
-      v3Add( out->norms + out->idxs[( i * 3 ) + 2],
-             out->norms + out->idxs[( i * 3 ) + 2],
-             &tmp3 );
    }
 
    for ( i = 0; i < out->numVerts; ++i ) {
-      v3Normalize( out->norms + i );
+      out->norms[i] = v3Normalize( out->norms[i] );
    }
 
    return out;

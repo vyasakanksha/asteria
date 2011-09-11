@@ -29,8 +29,8 @@
 typedef struct md5Joint {
    char      * name;
    int         parent;
-   vec4        position,
-               orientation;
+   vec3        position;
+   vec4        orientation;
 } md5Joint;
 
 
@@ -50,7 +50,7 @@ typedef struct md5Tri {
 typedef struct md5Weight {
    int         joint;
    GLfloat     weight;
-   vec4        position;
+   vec3        position;
 } md5Weight;
 
 typedef struct md5Mesh {
@@ -77,7 +77,7 @@ typedef struct md5MeshData {
 
 typedef struct md5SimpleBindPose {
    int      numVerts;
-   vec4   * verts;
+   vec3   * verts;
    vec3   * norms;
 
    int      numIdx;
