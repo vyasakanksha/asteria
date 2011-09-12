@@ -82,6 +82,12 @@ vec3 qtRotate( vec4 q, vec3 v ) {
                                     + v3Cross( intVec, conj );
 }
 
+vec4 qtConjugate( vec4 op ) {
+   vec4_u q = { .vec = op };
+   q.w = -q.w;
+   return -q.vec;
+}
+
 vec4 qtMkRot( GLfloat th, vec3 axis ) {
    vec3_u ax = { .vec = axis };
    GLfloat s;

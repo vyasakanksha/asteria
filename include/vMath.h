@@ -78,40 +78,55 @@ typedef union vec4_u {
 } vec4_u;
 
 
+__attribute__ ((pure))
 vec3 v3Cross( vec3 a, vec3 b );
 
 
+__attribute__ ((pure))
 GLfloat v2Dot( vec2 a, vec2 b );
 
+__attribute__ ((pure))
 GLfloat v3Dot( vec3 a, vec3 b );
 
+__attribute__ ((pure))
 GLfloat v4Dot( vec4 a, vec4 b );
 
 
+__attribute__ ((pure))
 static inline vec2 v2Scale( GLfloat s, vec2 v ) {
    return v * (vec2){ s, s, 1.0f, 1.0f };
 }
 
+__attribute__ ((pure))
 static inline vec3 v3Scale( GLfloat s, vec3 v ) {
    return v * (vec3){ s, s, s, 1.0f };
 }
 
+__attribute__ ((pure))
 static inline vec4 v4Scale( GLfloat s, vec4 v ) {
    return v * (vec4){ s, s, s, s };
 }
 
+__attribute__ ((pure))
 vec2 v2Normalize( vec2 op );
 
+__attribute__ ((pure))
 vec3 v3Normalize( vec3 op );
 
+__attribute__ ((pure))
 vec4 v4Normalize( vec4 op );
 
 
+__attribute__ ((pure))
 vec3 qtRotate( vec4 q, vec3 v );
 
 /* WARNING: Only works on unit quaternions. */
+__attribute__ ((pure))
 vec4 qtConjugate( vec4 op );
 
+__attribute__ ((pure))
 vec4 qtMkRot( GLfloat th, vec3 axis );
+
+
 
 #endif /* vMath.h */
