@@ -127,6 +127,11 @@ vec4 qtConjugate( vec4 op );
 __attribute__ ((pure))
 vec4 qtMkRot( GLfloat th, vec3 axis );
 
+/* output only valid up until next call. */
+const char * v2Txt( vec2 v );
 
+const char * v3Txt( vec2 v );
+
+const char * v4Txt( vec2 v );
 
 #endif /* vMath.h */

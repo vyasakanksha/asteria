@@ -98,3 +98,25 @@ vec4 qtMkRot( GLfloat th, vec3 axis ) {
 
    return (vec4){ ax.x * s, ax.y * s, ax.z * s, cos( th / 2.0f ) };
 }
+
+const char * v2Txt( vec2 v ) {
+   char * buf = malloc( 512 );
+   vec2_u u = { .vec = v };
+   snprintf( buf, 512, "{ .x = %f, .y = %f }", u.x, u.y );
+   return buf;
+}
+
+const char * v3Txt( vec3 v ) {
+   char * buf = malloc( 512 );
+   vec3_u u = { .vec = v };
+   snprintf( buf, 512, "{ .x = %f, .y = %f, .z = %f }", u.x, u.y, u.z );
+   return buf;
+}
+
+const char * v4Txt( vec4 v ) {
+   char * buf = malloc( 512 );
+   vec4_u u = { .vec = v };
+   snprintf( buf, 512, "{ .x = %f, .y = %f, .z = %f, .w = %f }",
+                       u.x, u.y, u.z, u.w );
+   return buf;
+}
