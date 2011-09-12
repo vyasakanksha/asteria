@@ -81,11 +81,11 @@ typedef struct md5MeshData {
 typedef struct md5BaseMesh {
    int numVerts; // The number of vertices making up the model.
 
-   GLint    * jIndex[4]; // The index of the joint associated with each of
-                         // the weights associated with the given vertex.
+   GLint    (* jIndex)[4]; // The index of the joint associated with each of
+                           // the weights associated with the given vertex.
 
-   GLfloat  * biases[4]; // The bias of each weight. In order for correct
-                         // behaviour, these should add up to one.
+   GLfloat  (* biases)[4]; // The bias of each weight. In order for correct
+                           // behaviour, these should add up to one.
 
    /* The parens here make them arrays of four pointers, instead of         *
     * pointers to arrays of four.                                           */

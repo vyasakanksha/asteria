@@ -17,8 +17,8 @@
  * with Asteria. If not, see <http://www.gnu.org/licenses/>.                *
  *                                                                          *
  ****************************************************************************/
-/* md5Calculations.c */
 
+/* md5Calculations.c */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -28,98 +28,157 @@
 
 #include <unistd.h>
 
-/* Bison generated header. */
-#include "md5Mesh.h"
-
 extern int md5meshparse( md5MeshData * ); 
 extern void md5meshset_in( FILE * );
 
+/* This is the real loader function for md5mesh files. */
 md5BaseMesh * md5LoadMesh( FILE * fp ) {
    md5BaseMesh * ret = malloc( sizeof( md5BaseMesh ) );
    md5MeshData meshDat;
 
-   vec3 * bindPoseVerts, * bindPoseNorms;
+   vec3 * bindPoseVerts, // We need to calculate the bind-pose vertex
+            // locations in order to calculate the bind-pose normals.
 
+        * bindPoseNorms; // We need to calculate the bind-pose normals
+            // in order to calculate the weight normals.
+
+   int i, j, k,
+
+       numVerts = 0, // The total number of vertices
+
+       numTris  = 0, // The total number of triangles in the mesh.
+
+       meshBase = 0, // The beginning index of the current mesh in the
+                     // overall vertex array ( i.e., if there are multiple
+                     // meshes to be stored in the same vertex arrays, we
+                     // need to add an offset to the .md5mesh indices ).
+
+       idxBase  = 0; // Like meshBase, but for ret->indices
+
+   // Call the parser to parse the input stream
    md5meshset_in( fp );
-
    if ( 0 != md5meshparse( &meshDat ) ) {
+      // Parse failed! Bail out!
       free( ret );
       fclose( fp );
       return NULL;
    }
 
-   // TODO: Calculate bind-pose vertices.
-   //     : Calculate bind-pose normals.
-   //     : Transpose normals back into joint local space.
-   //     : Generate  vertex arrays to be passed to the md5 shader.
-}
+   // Count the total number of vertices and triangles in all meshes
+   for ( i = 0; i < meshDat.numMeshes; ++i ) {
+      numVerts += meshDat.meshes[i].numVerts;
+      numTris  += meshDat.meshes[i].numTris;
+   }
+   bindPoseVerts = calloc( numVerts, sizeof( vec3 ) );
+   bindPoseNorms = calloc( numVerts, sizeof( vec3 ) );
 
-md5SimpleBindPose * md5GetSimpleBindPose( const char * meshName ) {
-   char meshFile[strlen( meshName ) + 9];
-   FILE * md5;
-   md5SimpleBindPose * out = malloc( sizeof( md5SimpleBindPose ) );
-   md5MeshData         meshDat;
+   // Set up the return structure, allocate memory to be loaded with values.
+   *ret = (md5BaseMesh){
+      .numVerts  = numVerts,
+      .jIndex    = malloc( sizeof( GLint )   * 4 * numVerts ),
+      .biases    = malloc( sizeof( GLfloat ) * 4 * numVerts ),
+      .positions = {
+         [0] = malloc( sizeof( vec3 ) * numVerts ),
+         [1] = malloc( sizeof( vec3 ) * numVerts ),
+         [2] = malloc( sizeof( vec3 ) * numVerts ),
+         [3] = malloc( sizeof( vec3 ) * numVerts )
+      },
+      .normals = {
+         [0] = malloc( sizeof( vec3 ) * numVerts ),
+         [1] = malloc( sizeof( vec3 ) * numVerts ),
+         [2] = malloc( sizeof( vec3 ) * numVerts ),
+         [3] = malloc( sizeof( vec3 ) * numVerts )
+      },
+      .numTris   = numTris,
+      .indices   = malloc( sizeof( GLuint ) * numTris * 3 ),
 
-   int i;
+      .numJoints = meshDat.numJoints,
+      .joints    = meshDat.joints
+   };
 
-   strcpy( meshFile, meshName );
-   strcat( meshFile, ".md5mesh" );
+   // This is the big important loop. For every vertex we fill out all of the
+   // information that we have available. We will calculate the normals after
+   // each mesh has been built.
+   for ( i = 0; i < meshDat.numMeshes; ++i ) {
 
-   if ( NULL == ( md5 = fopen( meshFile, "r" ) ) ) {
-      fprintf( stderr, "Could not open '%s': %s\n",
-                       meshFile, strerror( errno ) );
-      return NULL;
+      // Get a pointer to the mesh we're working with
+      md5Mesh * mesh = meshDat.meshes + i;
+
+      // Get a pointer to the specific vertices we want to alter.
+      vec3 * curVerts = bindPoseVerts + meshBase;
+      vec3 * curNorms = bindPoseNorms + meshBase;
+
+      // Pointer to the specific indices we want to alter.
+      GLuint * curIdx = ret->indices + idxBase;
+
+      // Calculate necessary information for each vertex. We can't yet
+      // calculate weight normals, but we can do everything else. We also
+      // build a list of bind-pose vertices to calculate the normals with.
+      for ( j = 0; j < mesh->numVerts; ++j ) {
+
+         // Register the ( up to 4 ) weights of this vertex.
+         for ( k = 0; k < mesh->verts[j].countWeight && k < 4; ++k ) {
+            int wIdx = mesh->verts[j].firstWeight + k;
+            ret->jIndex[meshBase + j][k]    = mesh->weights[wIdx].joint;
+            ret->biases[meshBase + j][k]    = mesh->weights[wIdx].weight;
+            ret->positions[k][meshBase + j] = mesh->weights[wIdx].position;
+         }
+
+         // Mark all other weights as unused and make sure their bias is 0
+         for ( ; k < 4; ++k ) {
+            // Make sure unused weights don't screw with the shader.
+            ret->jIndex[meshBase + j][k] = -1;   // -1 indicates this weight
+                                                 // is unused
+            ret->biases[meshBase + j][k] = 0.0f; // a bias of 0 ensures that
+                                   // garbage data doesn't affect the vertex
+         }
+
+         // The vertices were initialized to 0 by calloc, so we can just
+         // start accumulating.
+         for ( k = 0; k < mesh->verts[j].countWeight; ++k ) {
+            // Calculate the position of this weight
+            vec3 pos = qtRotate( meshDat.joints[ret->jIndex[j][k]].orient,
+                                 ret->positions[k][j] )
+                     + meshDat.joints[ret->jIndex[j][k]].position;
+
+            // Add the biased vector to the vertex's location
+            curVerts[j] += v3Scale( ret->biases[j][k], pos );
+         }
+      }
+      
+      /* Calculate vertex normals for the current bind-pose mesh. */
+      for ( j = 0; j < mesh->numTris; ++j ) {
+         vec3 A, B;
+         A = curVerts[mesh->tris[j].vtx2] - curVerts[mesh->tris[j].vtx1];
+         B = curVerts[mesh->tris[j].vtx3] - curVerts[mesh->tris[j].vtx1];
+
+         // Add this face's normal vector to all other normal vectors for
+         // each of the face's vertices.
+         curNorms[mesh->tris[j].vtx1] += v3Cross( A, B );
+         curNorms[mesh->tris[j].vtx2] += v3Cross( A, B );
+         curNorms[mesh->tris[j].vtx3] += v3Cross( A, B );
+
+         // Record the indices for accessing the vertex arrays
+         curIdx[( j * 3 ) + 0] = meshBase + mesh->tris[j].vtx1;
+         curIdx[( j * 3 ) + 1] = meshBase + mesh->tris[j].vtx2;
+         curIdx[( j * 3 ) + 2] = meshBase + mesh->tris[j].vtx3;
+      }
+
+      idxBase  += mesh->numTris * 3;
+      meshBase += mesh->numVerts;
    }
 
-   md5meshset_in( md5 );
-
-   if ( 0 != md5meshparse( &meshDat ) ) {
-      fprintf( stderr, "parsing '%s' failed: %s\n",
-                        meshFile, strerror( errno ) );
+   // This is the final step, go through and rotate bind-pose normals into
+   // joint-space normals for each weight.
+   for ( i = 0; i < numVerts; ++i ) {
+      vec3 norm = v3Normalize( bindPoseNorms[i] );
+      for ( j = 0; j < 4 && ret->jIndex[i][j] != -1; ++j ) {
+         // Find the quaternion to rotate the normal around.
+         vec4 conj = qtConjugate( meshDat.joints[ret->jIndex[i][j]].orient );
+         // Rotate it!
+         ret->normals[j][i] = qtRotate( conj, norm );
+      }
    }
 
-   /* FIXME: Only accounts for models with a single mesh. */
-   out->numVerts = meshDat.meshes[0].numVerts;
-   out->verts    = malloc( sizeof( vec3 ) * out->numVerts );
-   out->norms    = malloc( sizeof( vec3 ) * out->numVerts );
-
-   /* Pray for IEEE floating points. */
-   memset( out->norms, 0, sizeof( vec3 ) * out->numVerts );
-
-   /* FIXME: Only accounts for vertices with one weight. */
-   for ( i = 0; i < out->numVerts; ++i ) {
-      int wIdx  = meshDat.meshes[0].verts[i].firstWeight;
-      md5Weight * weight = meshDat.meshes[0].weights + wIdx;
-      md5Joint  * skel   = meshDat.joints + weight->joint;
-      out->verts[i] = qtRotate( skel->orientation, weight->position );
-      out->verts[i] += skel->position;
-   }
-
-   out->numIdx   = meshDat.meshes[0].numTris * 3;
-   out->idxs     = malloc( sizeof( GLuint ) * out->numIdx );
-
-   for ( i = 0; i < meshDat.meshes[0].numTris; i++ ) {
-      vec3 A, B;
-
-      out->idxs[( i * 3 ) + 0] = meshDat.meshes[0].tris[i].vtx1;
-      out->idxs[( i * 3 ) + 1] = meshDat.meshes[0].tris[i].vtx2;
-      out->idxs[( i * 3 ) + 2] = meshDat.meshes[0].tris[i].vtx3;
-
-      A = out->verts[out->idxs[( i * 3 ) + 1]]
-        - out->verts[out->idxs[( i * 3 ) + 0]];
-
-      B = out->verts[out->idxs[( i * 3 ) + 2]]
-        - out->verts[out->idxs[( i * 3 ) + 0]];
-
-      out->norms[out->idxs[( i * 3 ) + 0]] += v3Cross( B, A );
-      out->norms[out->idxs[( i * 3 ) + 1]] += v3Cross( B, A );
-      out->norms[out->idxs[( i * 3 ) + 2]] += v3Cross( B, A );
-
-   }
-
-   for ( i = 0; i < out->numVerts; ++i ) {
-      out->norms[i] = v3Normalize( out->norms[i] );
-   }
-
-   return out;
+   return ret;
 }
