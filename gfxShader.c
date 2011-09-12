@@ -29,6 +29,8 @@
 
 #include "libInclude.h"
 
+char * shaderBuffer = NULL;
+
 /* FIXME: Need to find a way to report error messages. */
 GLuint gfxMakeShader( const char * shader ) {
    GLuint ret;
@@ -36,7 +38,6 @@ GLuint gfxMakeShader( const char * shader ) {
    const char * ext;
    struct stat st;
    int read;
-   char * shaderBuffer = NULL;
 
    /* The first time around, we want to allocate 256k of memory. */
    if ( shaderBuffer == NULL ) {
@@ -88,6 +89,7 @@ GLuint gfxMakeShader( const char * shader ) {
 
 GLuint gfxMakeProgram( GLuint vtx, GLuint frg ) {
    GLuint ret;
+   GLint status;
 
    ret = glCreateProgram();
 
@@ -95,6 +97,14 @@ GLuint gfxMakeProgram( GLuint vtx, GLuint frg ) {
    glAttachShader( ret, frg );
 
    glLinkProgram( ret );
+
+   glGetProgramiv( ret, GL_LINK_STATUS, &status );
+   if ( status != GL_TRUE ) {
+      glGetShaderInfoLog( ret, 1 << 18, &status, shaderBuffer );
+      shaderBuffer[status] = '\0';
+      fprintf( stderr, "%s", shaderBuffer );
+   }
+
 
    return ret;
 
