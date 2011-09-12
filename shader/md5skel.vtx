@@ -1,0 +1,44 @@
+struct md5Joint {
+   vec4 rotQuat;
+   vec3 position;
+};
+
+uniform md5Joint Joints[128];
+
+attribute vec4  wJoints;
+attribute vec4  wBiases;
+attribute mat4  wPositions;
+attribute mat4  wNormals;
+
+varying vec3 normal;
+
+vec3 qtRotate( vec4 q, vec3 v ) {
+   float Dot   = -dot( q.xyz, v );
+   vec3  conj  = -1.0 * q.xyz;
+   vec3 intVec = ( q.w * v ) + cross( q.xyz, v );
+
+   return ( q.w * intVec ) + ( Dot * conj ) + cross( intVec, conj );
+}
+
+void main() {
+   vec3 pos[4];
+   vec3 norm[4];
+   for ( int i = 0; i < 4; ++i ) {
+      int jIdx = int( wJoints[i] );
+      if ( jIdx != -1 ) {
+         pos[i]  = Joints[jIdx].position
+                 + qtRotate( Joints[jIdx].rotQuat, wPositions[i].xyz );
+         norm[i] = qtRotate( Joints[jIdx].rotQuat, wNormals[i].xyz );
+      } else {
+         break;
+      }
+   }
+
+   normal = gl_NormalMatrix
+          * ( ( norm[0] * wBiases[0] ) + ( norm[1] * wBiases[1] )
+            + ( norm[2] * wBiases[2] ) + ( norm[3] * wBiases[3] ) );
+
+   gl_Position = gl_ModelViewProjectionMatrix
+               * vec4( ( pos[0] * wBiases[0] ) + ( pos[1] * wBiases[1] )
+                     + ( pos[2] * wBiases[2] ) + ( pos[3] * wBiases[3] ), 1.0 );
+}
