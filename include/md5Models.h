@@ -30,7 +30,7 @@ typedef struct md5Joint {
    char      * name;
    int         parent;
    vec3        position;
-   vec4        orientation;
+   vec4        orient;
 } md5Joint;
 
 
@@ -81,7 +81,7 @@ typedef struct md5MeshData {
 typedef struct md5BaseMesh {
    int numVerts; // The number of vertices making up the model.
 
-   GLint    * joints[4]; // The index of the joint associated with each of
+   GLint    * jIndex[4]; // The index of the joint associated with each of
                          // the weights associated with the given vertex.
 
    GLfloat  * biases[4]; // The bias of each weight. In order for correct
@@ -89,11 +89,11 @@ typedef struct md5BaseMesh {
 
    /* The parens here make them arrays of four pointers, instead of         *
     * pointers to arrays of four.                                           */
-   vec3    (* positions)[4]; // The offset of each of the ( up to ) four 
+   vec3    * (positions[4]); // The offset of each of the ( up to ) four 
                              // weights associated with the given vertex.
 
-   vec3    (* normals)[4];   // The normals of each of these weights in joint
-                             // local space.
+   vec3    * (normals[4]);   // The normals of each of these weights in
+                             // joint space.
 
    int numTris;      // The number of triangles in the mesh.
 

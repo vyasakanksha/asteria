@@ -108,7 +108,7 @@ Joint
                   .w = 0.0f
                }
             }).vec,
-            .orientation = (vec4)((vec4_u){ {
+            .orient = (vec4)((vec4_u){ {
                   .x = $9,
                   .y = $10,
                   .z = $11,
