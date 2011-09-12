@@ -75,7 +75,7 @@ md5BaseMesh * md5LoadMesh( FILE * fp ) {
    // Set up the return structure, allocate memory to be loaded with values.
    *ret = (md5BaseMesh){
       .numVerts  = numVerts,
-      .jIndex    = malloc( sizeof( GLint )   * 4 * numVerts ),
+      .jIndex    = malloc( sizeof( GLfloat ) * 4 * numVerts ),
       .biases    = malloc( sizeof( GLfloat ) * 4 * numVerts ),
       .positions = {
          [0] = malloc( sizeof( vec3 ) * numVerts ),
@@ -127,19 +127,20 @@ md5BaseMesh * md5LoadMesh( FILE * fp ) {
          // Mark all other weights as unused and make sure their bias is 0
          for ( ; k < 4; ++k ) {
             // Make sure unused weights don't screw with the shader.
-            ret->jIndex[meshBase + j][k] = -1;   // -1 indicates this weight
-                                                 // is unused
-            ret->biases[meshBase + j][k] = 0.0f; // a bias of 0 ensures that
+            ret->jIndex[meshBase + j][k] = -1.0f; // -1 indicates this weight
+                                                  // is unused
+            ret->biases[meshBase + j][k] =  0.0f; // a bias of 0 ensures that
                                    // garbage data doesn't affect the vertex
+            ret->positions[k][meshBase + j] = (vec3){ 0.0f, 0.0f, 0.0f, 0.0f };
          }
 
          // The vertices were initialized to 0 by calloc, so we can just
          // start accumulating.
          for ( k = 0; k < mesh->verts[j].countWeight; ++k ) {
             // Calculate the position of this weight
-            vec3 pos = qtRotate( meshDat.joints[ret->jIndex[j][k]].orient,
+            vec3 pos = qtRotate( meshDat.joints[(int)ret->jIndex[j][k]].orient,
                                  ret->positions[k][j] )
-                     + meshDat.joints[ret->jIndex[j][k]].position;
+                     + meshDat.joints[(int)ret->jIndex[j][k]].position;
 
             // Add the biased vector to the vertex's location
             curVerts[j] += v3Scale( ret->biases[j][k], pos );
@@ -174,7 +175,7 @@ md5BaseMesh * md5LoadMesh( FILE * fp ) {
       vec3 norm = v3Normalize( bindPoseNorms[i] );
       for ( j = 0; j < 4 && ret->jIndex[i][j] != -1; ++j ) {
          // Find the quaternion to rotate the normal around.
-         vec4 conj = qtConjugate( meshDat.joints[ret->jIndex[i][j]].orient );
+         vec4 conj = qtConjugate( meshDat.joints[(int)ret->jIndex[i][j]].orient );
          // Rotate it!
          ret->normals[j][i] = qtRotate( conj, norm );
       }

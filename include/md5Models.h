@@ -75,20 +75,21 @@ typedef struct md5MeshData {
 } md5MeshData;
 
 
-/* The md5BaseMesh structure defines everything needed to render the mesh   *
- * with its bind-pose skeleton. All that needs to be changed to animate it  *
- * is the position of the bones.                                            */
+// The md5BaseMesh structure defines everything needed to render the mesh
+// with its bind-pose skeleton. All that needs to be changed to animate it
+// is the position of the bones.
 typedef struct md5BaseMesh {
    int numVerts; // The number of vertices making up the model.
 
-   GLint    (* jIndex)[4]; // The index of the joint associated with each of
+   // Parens are to make these pointers to arrays of four elements each.
+   GLfloat  (* jIndex)[4]; // The index of the joint associated with each of
                            // the weights associated with the given vertex.
 
    GLfloat  (* biases)[4]; // The bias of each weight. In order for correct
                            // behaviour, these should add up to one.
 
-   /* The parens here make them arrays of four pointers, instead of         *
-    * pointers to arrays of four.                                           */
+   // The parens here make them arrays of four pointers, instead of
+   // pointers to arrays of four.
    vec3    * (positions[4]); // The offset of each of the ( up to ) four 
                              // weights associated with the given vertex.
 
