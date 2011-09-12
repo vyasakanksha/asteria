@@ -20,7 +20,7 @@
 
 /* main.c */
 #include <stdio.h>
-#include <stdio.h>
+#include <stdlib.h>
 
 #include <unistd.h> /* For sleep(). */
 
@@ -41,17 +41,30 @@ int main( int argc, char * argv[] ) {
 
    GLuint vtx, frg, prog;
 
+   double GL_Version;
+
 
    SDL_Init( SDL_INIT_EVERYTHING );
-
-   SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, 1 );
-   SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 4 );
 
    gfxSetupOsWindow( 800, 600 );
    gfxInitializeOpenGL();
 
+   GL_Version = strtod( (char *)glGetString( GL_VERSION ), NULL );
+   if ( GL_Version < 2.1f ) {
+      fprintf( stderr, 
+      "OpenGL Version must be at least 2.1, but you appear to be running\n"
+      "OpenGL %2.1f. Be sure that your hardware supports OpenGL 2.1, and\n"
+      "that you have the most up-to-date drivers for your graphics hardware.\n",
+      GL_Version );
+      SDL_Quit();
+      exit( 1 );
+   } else {
+      printf( "Detected OpenGL Version %2.1f, Have Fun!\n", GL_Version );
+   }
+
    if ( GLEW_OK != glewInit() ) {
       fprintf( stderr, "GLEW Failed to initialize.\n" );
+      SDL_Quit();
       exit( 1 );
    }
 
