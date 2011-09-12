@@ -38,15 +38,9 @@ int main( int argc, char * argv[] ) {
 
    int i;
 
-   md5SimpleBindPose * model;
 
    GLuint vtx, frg, prog;
 
-
-   if ( NULL == ( model = md5GetSimpleBindPose( "robot" ) ) ) {
-      fprintf( stderr, "Failure to load test model...\n" );
-      exit( 1 );
-   }
 
    SDL_Init( SDL_INIT_EVERYTHING );
 
@@ -85,8 +79,6 @@ int main( int argc, char * argv[] ) {
    glEnableClientState( GL_VERTEX_ARRAY );
    glEnableClientState( GL_NORMAL_ARRAY );
 
-   glVertexPointer( 3, GL_FLOAT, sizeof( vec4 ), model->verts );
-   glNormalPointer( GL_FLOAT, sizeof( vec3 ), model->norms );
 
    for ( i = 0; i < 200; ++i ) {
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -95,7 +87,6 @@ int main( int argc, char * argv[] ) {
       glTranslatef( 0.0f, 0.0f, -3.0f );
       glRotatef( 180.0f, 1.0f, 0.0f, 0.0f );
       glRotatef( 3.0f * i, 0.0f, 1.0f, 0.0f );
-      glDrawElements( GL_TRIANGLES, model->numIdx, GL_UNSIGNED_INT, model->idxs );
 
       glFinish(); 
 
