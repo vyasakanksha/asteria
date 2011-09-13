@@ -78,11 +78,11 @@ GLuint gfxMakeShader( const char * shader ) {
    glCompileShader( ret );
 
    glGetShaderiv( ret, GL_COMPILE_STATUS, &read );
-   if ( read != GL_TRUE ) {
+   //if ( read != GL_TRUE ) {
       glGetShaderInfoLog( ret, 1 << 18, &read, shaderBuffer );
       shaderBuffer[read] = '\0';
       fprintf( stderr, "%s", shaderBuffer );
-   }
+   //}
 
    return ret;
 }
@@ -99,11 +99,11 @@ GLuint gfxMakeProgram( GLuint vtx, GLuint frg ) {
    glLinkProgram( ret );
 
    glGetProgramiv( ret, GL_LINK_STATUS, &status );
-   if ( status != GL_TRUE ) {
+   //if ( status != GL_TRUE ) {
       glGetShaderInfoLog( ret, 1 << 18, &status, shaderBuffer );
       shaderBuffer[status] = '\0';
       fprintf( stderr, "%s", shaderBuffer );
-   }
+   //}
 
 
    return ret;
