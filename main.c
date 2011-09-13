@@ -165,15 +165,17 @@ int main( int argc, char * argv[] ) {
    glEnableVertexAttribArray( wNormals + 2 );
    glEnableVertexAttribArray( wNormals + 3 );
 
+   md5BufferedMesh * bMesh = md5BufferMesh( model );
+
    glVertexAttribPointer( wJoints, 4, GL_FLOAT, GL_FALSE,
-                          sizeof( GLfloat ) * 4, model->jIndex );
+                          sizeof( GLfloat ) * 4, bMesh->jIndex );
    glVertexAttribPointer( wBiases, 4, GL_FLOAT, GL_FALSE,
-                          sizeof( GLfloat ) * 4, model->biases );
+                          sizeof( GLfloat ) * 4, bMesh->biases );
    for ( i = 0; i < 4; ++i ) {
       glVertexAttribPointer( wPositions + i, 4, GL_FLOAT, GL_FALSE,
-                             sizeof( vec3 ), model->positions[i] );
+                             sizeof( vec3 ), bMesh->positions[i] );
       glVertexAttribPointer( wNormals + i, 4, GL_FLOAT, GL_FALSE,
-                             sizeof( vec4 ), model->normals[i] );
+                             sizeof( vec4 ), bMesh->normals[i] );
    }
 
    //////////////////// END  MD5 SKELETON TEST ///////////////////////
@@ -183,8 +185,8 @@ int main( int argc, char * argv[] ) {
 
    ticks = SDL_GetTicks();
 
-   for ( i = 0; i < 200; ++i ) {
-      int j;
+   for ( i = 0; i < 3000; ++i ) {
+      int j, k;
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
       glLoadIdentity();
@@ -194,18 +196,24 @@ int main( int argc, char * argv[] ) {
 
       glRotatef( 90, 1.0f, 0.0f, 0.0f );
 
-      glRotatef( 8.0f * i, 0.0f, 1.0f, 0.0f );
+      glRotatef( 0.5 * i, 0.0f, 1.0f, 0.0f );
 
       glRotatef( 90, 1.0f, 0.0f, 1.0f );
 
       glDrawElements( GL_TRIANGLES, model->numTris * 3,
-                      GL_UNSIGNED_INT, model->indices );
+                      GL_UNSIGNED_INT, (GLvoid * )0 );
 
-      for ( j = 0; j < 20; ++j ) {
-         glTranslatef( 0.5f, 0.0f, 0.0f );
 
-         glDrawElements( GL_TRIANGLES, model->numTris * 3,
-                         GL_UNSIGNED_INT, model->indices );
+      for ( k = 0; k < 20; ++k ) {
+         glPushMatrix();
+         glTranslatef( 0.0f, 1.0f * k, 0.0f );
+         for ( j = 0; j < 10; ++j ) {
+            glTranslatef( 0.5f, 0.0f, 0.0f );
+
+            glDrawElements( GL_TRIANGLES, model->numTris * 3,
+                            GL_UNSIGNED_INT, (GLvoid * )0 );
+         }
+         glPopMatrix();
       }
 
       glFinish(); 
@@ -213,7 +221,7 @@ int main( int argc, char * argv[] ) {
       SDL_GL_SwapBuffers();
    }
 
-   fprintf( stderr, "Rendered at %d frames per second!\n", (int)( 200.0f / (float)( ( SDL_GetTicks() - ticks ) / 1000 ) ) );
+   fprintf( stderr, "Rendered at %d frames per second!\n", (int)( 3000.0f / (float)( ( SDL_GetTicks() - ticks ) / 1000 ) ) );
 
    sleep( 1 );
 

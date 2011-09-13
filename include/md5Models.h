@@ -105,6 +105,20 @@ typedef struct md5BaseMesh {
    md5Joint * joints; // Data for each of the skeleton's joints.
 } md5BaseMesh;
 
+// If the mesh is stored in a buffer object, this special structure gives
+// the names for the buffer objects ( vertex/index ), and the special pointers
+// for use as vertex array offsets into the buffer
+typedef struct md5BufferedMesh {
+   GLuint vBuf, // OpenGL name for Vertex Buffer Object
+          iBuf; // OpenGL name for Index Buffer Object
+
+   GLvoid * jIndex,
+          * biases,
+          * positions[4],
+          * normals[4];
+          
+} md5BufferedMesh;
+
 // Each frame is just an array of joints, each corresponding to a joint in the
 // animated mesh.
 typedef struct md5AnimFrame {
@@ -130,5 +144,7 @@ typedef struct md5AnimData {
 
 
 md5BaseMesh * md5LoadMesh( FILE * fp );
+
+md5BufferedMesh * md5BufferMesh( md5BaseMesh * mesh );
 
 #endif /* md5Models.h */

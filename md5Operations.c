@@ -55,6 +55,8 @@ md5BaseMesh * md5LoadMesh( FILE * fp ) {
 
        idxBase  = 0; // Like meshBase, but for ret->indices
 
+   char * pRef;
+
    // Call the parser to parse the input stream
    md5meshset_in( fp );
    if ( 0 != md5meshparse( &meshDat ) ) {
@@ -72,22 +74,36 @@ md5BaseMesh * md5LoadMesh( FILE * fp ) {
    bindPoseVerts = calloc( numVerts, sizeof( vec3 ) );
    bindPoseNorms = calloc( numVerts, sizeof( vec3 ) );
 
-   // Set up the return structure, allocate memory to be loaded with values.
+   pRef = malloc( ( sizeof( GLfloat ) + sizeof( vec3 ) ) * 8 * numVerts );
+   printf( "Allocated %zd bytes for mesh...",
+           ( sizeof( GLfloat ) + sizeof( vec3 ) ) * 8 * numVerts + numTris * 3 * sizeof( GLuint ) );
+
+   // Distribute memory pointed to by pRef among the different fields of the
+   // return struct. We could be a bit less verbose with the pointer arithmetic
+   // here, but for the sake of clarity, we'll leave it explicit.
    *ret = (md5BaseMesh){
       .numVerts  = numVerts,
-      .jIndex    = malloc( sizeof( GLfloat ) * 4 * numVerts ),
-      .biases    = malloc( sizeof( GLfloat ) * 4 * numVerts ),
+      .jIndex    = (GLfloat (*)[4])pRef,
+      .biases    = (GLfloat (*)[4])( pRef + ( sizeof( GLfloat ) * 4 * numVerts ) ),
       .positions = {
-         [0] = malloc( sizeof( vec3 ) * numVerts ),
-         [1] = malloc( sizeof( vec3 ) * numVerts ),
-         [2] = malloc( sizeof( vec3 ) * numVerts ),
-         [3] = malloc( sizeof( vec3 ) * numVerts )
+         [0] = (vec3 *)( pRef + ( sizeof( GLfloat ) * 8 * numVerts )
+                              + ( sizeof( vec3 ) * 0 * numVerts ) ),
+         [1] = (vec3 *)( pRef + ( sizeof( GLfloat ) * 8 * numVerts )
+                              + ( sizeof( vec3 ) * 1 * numVerts ) ),
+         [2] = (vec3 *)( pRef + ( sizeof( GLfloat ) * 8 * numVerts )
+                              + ( sizeof( vec3 ) * 2 * numVerts ) ),
+         [3] = (vec3 *)( pRef + ( sizeof( GLfloat ) * 8 * numVerts )
+                              + ( sizeof( vec3 ) * 3 * numVerts ) ),
       },
       .normals = {
-         [0] = malloc( sizeof( vec3 ) * numVerts ),
-         [1] = malloc( sizeof( vec3 ) * numVerts ),
-         [2] = malloc( sizeof( vec3 ) * numVerts ),
-         [3] = malloc( sizeof( vec3 ) * numVerts )
+         [0] = (vec3 *)( pRef + ( sizeof( GLfloat ) * 8 * numVerts )
+                              + ( sizeof( vec3 ) * 4 * numVerts ) ),
+         [1] = (vec3 *)( pRef + ( sizeof( GLfloat ) * 8 * numVerts )
+                              + ( sizeof( vec3 ) * 5 * numVerts ) ),
+         [2] = (vec3 *)( pRef + ( sizeof( GLfloat ) * 8 * numVerts )
+                              + ( sizeof( vec3 ) * 6 * numVerts ) ),
+         [3] = (vec3 *)( pRef + ( sizeof( GLfloat ) * 8 * numVerts )
+                              + ( sizeof( vec3 ) * 7 * numVerts ) ),
       },
       .numTris   = numTris,
       .indices   = malloc( sizeof( GLuint ) * numTris * 3 ),
@@ -104,7 +120,8 @@ md5BaseMesh * md5LoadMesh( FILE * fp ) {
       // Get a pointer to the mesh we're working with
       md5Mesh * mesh = meshDat.meshes + i;
 
-      // Get a pointer to the specific vertices we want to alter.
+      // Get a pointer to the specific vertices we want to alter ( and their
+      // normals ).
       vec3 * curVerts = bindPoseVerts + meshBase;
       vec3 * curNorms = bindPoseNorms + meshBase;
 
@@ -146,8 +163,8 @@ md5BaseMesh * md5LoadMesh( FILE * fp ) {
             curVerts[j] += v3Scale( ret->biases[j][k], pos );
          }
       }
-      
-      /* Calculate vertex normals for the current bind-pose mesh. */
+
+      // Calculate vertex normals for the current bind-pose mesh.
       for ( j = 0; j < mesh->numTris; ++j ) {
          vec3 A, B;
          A = curVerts[mesh->tris[j].vtx3] - curVerts[mesh->tris[j].vtx1];
@@ -180,6 +197,45 @@ md5BaseMesh * md5LoadMesh( FILE * fp ) {
          ret->normals[j][i] = qtRotate( conj, norm );
       }
    }
+
+   return ret;
+}
+
+
+md5BufferedMesh * md5BufferMesh( md5BaseMesh * mesh ) {
+   md5BufferedMesh * ret = malloc( sizeof( md5BufferedMesh ) );
+   int i;
+
+   glGenBuffers( 1, &( ret->vBuf ) );
+   glGenBuffers( 1, &( ret->iBuf ) );
+
+   ret->jIndex = (GLvoid * )0;
+   ret->biases = (GLvoid * )( (char * )mesh->biases 
+                            - (char * )mesh->jIndex );
+
+   for ( i = 0; i < 4; ++i ) {
+      ret->positions[i] = (GLvoid * )( (char * )mesh->positions[i] 
+                                     - (char * )mesh->jIndex );
+   }
+
+   for ( i = 0; i < 4; ++i ) {
+      ret->normals[i] = (GLvoid * )( (char * )mesh->normals[i]
+                                   - (char * )mesh->jIndex );
+   }
+
+   glBindBuffer( GL_ARRAY_BUFFER, ret->vBuf );
+   glBufferData(
+         GL_ARRAY_BUFFER, 
+         ( sizeof( GLfloat ) + sizeof( vec3 ) ) * 24 * mesh->numTris,
+         mesh->jIndex,
+         GL_STATIC_DRAW );
+
+   glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ret->iBuf );
+   glBufferData(
+         GL_ELEMENT_ARRAY_BUFFER, 
+         sizeof( GLuint ) * mesh->numTris * 3,
+         mesh->indices,
+         GL_STATIC_DRAW );
 
    return ret;
 }
