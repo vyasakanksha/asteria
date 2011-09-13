@@ -98,8 +98,8 @@ Joint
    : "string" "int" '(' "float" "float" "float" ')'
                     '(' "float" "float" "float" ')' {
          GLfloat sq;
+         free( $1 ); // Hoorray for unnecessary memory fragmentation!
          mdl->joints[jointIdx++] = (md5Joint){
-            .name       = $1,
             .parent     = $2,
             .position   = (vec3)((vec4_u){ { 
                   .x = $4,

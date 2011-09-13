@@ -27,7 +27,6 @@
 
 
 typedef struct md5Joint {
-   char      * name;
    int         parent;
    vec3        position;
    vec4        orient;
@@ -105,6 +104,30 @@ typedef struct md5BaseMesh {
 
    md5Joint * joints; // Data for each of the skeleton's joints.
 } md5BaseMesh;
+
+// Each frame is just an array of joints, each corresponding to a joint in the
+// animated mesh.
+typedef struct md5AnimFrame {
+   md5Joint * joints;
+} md5AnimFrame;
+
+// This structure provides all of the information necessary to determine bone
+// positions for a model at a given time.
+typedef struct md5AnimData {
+   float frameDur; // The number of milliseconds per frame.
+
+   int numJoints;  // The number of joints in the model.
+
+   md5Joint * baseFrame; // Joints in their base-frame position.
+
+   GLuint * uPosition; // The glUniform indices for the joints' positions.
+   GLuint * uOrient; // The glUniform indices for the joints' orientations.
+
+   int numFrames; // The number of frames in the model's animations.
+
+   md5AnimFrame * frames; // A list of all frames.
+} md5Animation;
+
 
 md5BaseMesh * md5LoadMesh( FILE * fp );
 
