@@ -58,7 +58,7 @@ int main( int argc, char * argv[] ) {
       exit( 1 );
    } else if ( modes == (SDL_Rect **)-1 ) {
       fprintf( stderr, "Video modes unrestricted\n" );
-      gfxSetupOsWindow( 640, 480 );
+      gfxSetupOsWindow( 1024, 768 );
    } else {
       gfxSetupOsWindow( (*modes)->w, (*modes)->h );
       for ( ; *modes; ++modes ) {
@@ -132,6 +132,10 @@ int main( int argc, char * argv[] ) {
 
    //////////////////// MD5 SKELETON TEST CODE //////////////////////
 
+   vec4 rot = qtMkRot( 70.0f, (vec3){ 1.0f, 0.0f, 0.0f, 0.0f } );
+
+   model->joints[2].orient = qtMul( model->joints[2].orient, rot );
+
    for ( i = 0; i < model->numJoints; ++i ) {
       char varName[128];
       GLint loc;
@@ -174,22 +178,42 @@ int main( int argc, char * argv[] ) {
 
    //////////////////// END  MD5 SKELETON TEST ///////////////////////
 
+   printf( "Attempting to render %d triangles.\n", model->numTris * 20 );
+   
+
+   ticks = SDL_GetTicks();
+
    for ( i = 0; i < 200; ++i ) {
+      int j;
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
       glLoadIdentity();
-      glTranslatef( 0.0f, 0.0f, -3.0f );
-      glRotatef( 3.0f * i, 0.0f, 1.0f, 0.0f );
+
+
+      glTranslatef( 0.0f, 0.0f, -30.0f );
+
+      glRotatef( 90, 1.0f, 0.0f, 0.0f );
+
+      glRotatef( 8.0f * i, 0.0f, 1.0f, 0.0f );
+
+      glRotatef( 90, 1.0f, 0.0f, 1.0f );
 
       glDrawElements( GL_TRIANGLES, model->numTris * 3,
                       GL_UNSIGNED_INT, model->indices );
 
-      glFinish(); 
+      for ( j = 0; j < 20; ++j ) {
+         glTranslatef( 0.5f, 0.0f, 0.0f );
 
-      SDL_Delay( 25 );
+         glDrawElements( GL_TRIANGLES, model->numTris * 3,
+                         GL_UNSIGNED_INT, model->indices );
+      }
+
+      glFinish(); 
 
       SDL_GL_SwapBuffers();
    }
+
+   fprintf( stderr, "Rendered at %d frames per second!\n", (int)( 200.0f / (float)( ( SDL_GetTicks() - ticks ) / 1000 ) ) );
 
    sleep( 1 );
 

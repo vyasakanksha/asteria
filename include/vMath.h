@@ -127,6 +127,9 @@ vec4 qtConjugate( vec4 op );
 __attribute__ ((pure))
 vec4 qtMkRot( GLfloat th, vec3 axis );
 
+__attribute__ ((pure))
+vec4 qtMul( vec4 a, vec4 b );
+
 /* output only valid up until next call. */
 const char * v2Txt( vec2 v );
 

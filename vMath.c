@@ -99,6 +99,20 @@ vec4 qtMkRot( GLfloat th, vec3 axis ) {
    return (vec4){ ax.x * s, ax.y * s, ax.z * s, cos( th / 2.0f ) };
 }
 
+vec4 qtMul( vec4 a, vec4 b ) {
+   vec4_u a_u = { .vec = a },
+          b_u = { .vec = b },
+          res;
+
+   GLfloat s;
+
+   s       = a_u.w * b_u.w - v3Dot( a_u.xyz, b_u.xyz );
+   res.vec = v3Scale( b_u.w, a_u.xyz ) + v3Scale( a_u.w, b_u.xyz ) + v3Cross( a_u.xyz, b_u.xyz );
+   res.w   = s;
+
+   return res.vec;
+}
+
 const char * v2Txt( vec2 v ) {
    char * buf = malloc( 512 );
    vec2_u u = { .vec = v };
