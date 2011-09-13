@@ -107,10 +107,17 @@ vec4 qtMul( vec4 a, vec4 b ) {
    GLfloat s;
 
    s       = a_u.w * b_u.w - v3Dot( a_u.xyz, b_u.xyz );
-   res.vec = v3Scale( b_u.w, a_u.xyz ) + v3Scale( a_u.w, b_u.xyz ) + v3Cross( a_u.xyz, b_u.xyz );
+   res.vec = v3Scale( b_u.w, a_u.xyz ) 
+           + v3Scale( a_u.w, b_u.xyz )
+           + v3Cross( a_u.xyz, b_u.xyz );
    res.w   = s;
 
    return res.vec;
+}
+
+vec4 qtSLERP( vec4 a, vec4 b, GLfloat t ) {
+   // Important! cos(theta/2) = v4Dot( a, b )
+   // http://embots.dfki.de/doc/seminar_ca/Kremer_Quaternions.pdf
 }
 
 const char * v2Txt( vec2 v ) {

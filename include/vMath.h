@@ -107,6 +107,7 @@ static inline vec4 v4Scale( GLfloat s, vec4 v ) {
    return v * (vec4){ s, s, s, s };
 }
 
+
 __attribute__ ((pure))
 vec2 v2Normalize( vec2 op );
 
@@ -129,6 +130,10 @@ vec4 qtMkRot( GLfloat th, vec3 axis );
 
 __attribute__ ((pure))
 vec4 qtMul( vec4 a, vec4 b );
+
+__attribute__ ((pure))
+vec4 qtSlerp( vec4 a, vec4 b, GLfloat t );
+
 
 /* output only valid up until next call. */
 const char * v2Txt( vec2 v );
