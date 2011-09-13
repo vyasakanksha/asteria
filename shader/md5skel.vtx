@@ -1,9 +1,6 @@
-struct md5Joint {
-   vec4 rotQuat;
-   vec3 position;
-};
+uniform vec4 jQuat[64];
 
-uniform md5Joint Joints[128];
+uniform vec3 jPos[64];
 
 attribute vec4  wJoints;
 attribute vec4  wBiases;
@@ -26,9 +23,9 @@ void main() {
    for ( int i = 0; i < 4; ++i ) {
       int jIdx = int( wJoints[i] );
       if ( jIdx != -1 ) {
-         pos[i]  = Joints[jIdx].position
-                 + qtRotate( Joints[jIdx].rotQuat, wPositions[i].xyz );
-         norm[i] = qtRotate( Joints[jIdx].rotQuat, wNormals[i].xyz );
+         pos[i]  = jPos[jIdx]
+                 + qtRotate( jQuat[jIdx], wPositions[i].xyz );
+         norm[i] = qtRotate( jQuat[jIdx], wNormals[i].xyz );
       } else {
          break;
       }

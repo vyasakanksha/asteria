@@ -66,8 +66,6 @@ int main( int argc, char * argv[] ) {
       }
    }
 
-
-
    gfxInitializeOpenGL();
 
    GL_Version = strtod( (char *)glGetString( GL_VERSION ), NULL );
@@ -139,21 +137,23 @@ int main( int argc, char * argv[] ) {
       GLint loc;
       vec4 tmp4;
       vec3 tmp3;
-      snprintf( varName, 128, "Joints[%d].rotQuat", i );
+      snprintf( varName, 128, "jQuat[%d]", i );
       loc = glGetUniformLocation( prog, varName );
-      fprintf( stderr, "Joints[%d].rotQuat: %d\n", i, loc );
+      fprintf( stderr, "jQuat[%d]: %d\n", i, loc );
       glUniform4fv( loc, 4, (GLfloat * )&( model->joints[i].orient ) );
       glGetUniformfv( prog, loc, (GLfloat *)&tmp4 );
-      fprintf( stderr, "Joints[%d].rotQuat = %s, should be %s\n",
+      fprintf( stderr, "jQuat[%d] = %s, should be %s\n",
                        i,
                        v4Txt( tmp4 ),
                        v4Txt( model->joints[i].orient ) );
-      snprintf( varName, 128, "Joints[%d].position", i );
-      loc = glGetUniformLocation( prog, varName );
-      fprintf( stderr, "Joints[%d].position: %d\n", i, loc );
+      snprintf( varName, 128, "jPos[%d]", i );
+      if ( -1 == ( loc = glGetUniformLocation( prog, varName ) ) ) {
+         fprintf( stderr, "glGetUniformLocation: %s\n", gluErrorString( glGetError() ) );
+      }
+      fprintf( stderr, "jPos[%d]: %d\n", i, loc );
       glUniform3fv( loc, 3, (GLfloat * )&( model->joints[i].position ) );
       glGetUniformfv( prog, loc, (GLfloat *)&tmp3 );
-      fprintf( stderr, "Joints[%d].position = %s, should be %s\n",
+      fprintf( stderr, "jPos[%d] = %s, should be %s\n",
                        i,
                        v3Txt( tmp3 ),
                        v3Txt( model->joints[i].position ) );
@@ -193,9 +193,9 @@ int main( int argc, char * argv[] ) {
 
    for ( i = 0; i < model->numTris; ++i ) {
       int j;
-      fprintf( stderr, "Tri %d:\n", i );
       for ( j = 0; j < 3; ++j ) {
-         int idx = model->indices[i * 3 + j];
+         //int idx = model->indices[i * 3 + j];
+         /*
          fprintf( stderr, "jIdx: %s\nBias: %s\nPos[0]: %s\nPos[1]: %s\n"
                           "Pos[2]: %s\nPos[3]: %s\n %d\n\n",
                           v4Txt( *((vec4 *)&model->jIndex[idx] ) ),
@@ -205,6 +205,7 @@ int main( int argc, char * argv[] ) {
                           v3Txt( model->positions[2][idx] ),
                           v3Txt( model->positions[3][idx] ),
                           idx );
+         */
       }
    }
 
