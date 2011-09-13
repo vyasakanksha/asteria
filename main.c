@@ -135,34 +135,20 @@ int main( int argc, char * argv[] ) {
    for ( i = 0; i < model->numJoints; ++i ) {
       char varName[128];
       GLint loc;
-      vec4 tmp4;
-      vec3 tmp3;
       snprintf( varName, 128, "jQuat[%d]", i );
       loc = glGetUniformLocation( prog, varName );
-      fprintf( stderr, "jQuat[%d]: %d\n", i, loc );
       glUniform4fv( loc, 4, (GLfloat * )&( model->joints[i].orient ) );
-      glGetUniformfv( prog, loc, (GLfloat *)&tmp4 );
-      fprintf( stderr, "jQuat[%d] = %s, should be %s\n",
-                       i,
-                       v4Txt( tmp4 ),
-                       v4Txt( model->joints[i].orient ) );
       snprintf( varName, 128, "jPos[%d]", i );
-      if ( -1 == ( loc = glGetUniformLocation( prog, varName ) ) ) {
-         fprintf( stderr, "glGetUniformLocation: %s\n", gluErrorString( glGetError() ) );
-      }
-      fprintf( stderr, "jPos[%d]: %d\n", i, loc );
+      loc = glGetUniformLocation( prog, varName );
       glUniform3fv( loc, 3, (GLfloat * )&( model->joints[i].position ) );
-      glGetUniformfv( prog, loc, (GLfloat *)&tmp3 );
-      fprintf( stderr, "jPos[%d] = %s, should be %s\n",
-                       i,
-                       v3Txt( tmp3 ),
-                       v3Txt( model->joints[i].position ) );
    }
 
-   GLint wJoints     = glGetAttribLocation( prog, "wJoints" ),
-         wBiases     = glGetAttribLocation( prog, "wBiases" ),
-         wPositions  = glGetAttribLocation( prog, "wPositions" ),
-         wNormals    = glGetAttribLocation( prog, "wNormals" );
+   GLuint wJoints, wBiases, wPositions, wNormals;
+
+   wJoints    = glGetAttribLocation( prog, "wJoints" );
+   wBiases    = glGetAttribLocation( prog, "wBiases" );
+   wPositions = glGetAttribLocation( prog, "wPositions" );
+   wNormals   = glGetAttribLocation( prog, "wNormals" );
 
    glEnableVertexAttribArray( wJoints );
    glEnableVertexAttribArray( wBiases );
@@ -184,29 +170,6 @@ int main( int argc, char * argv[] ) {
                              sizeof( vec3 ), model->positions[i] );
       glVertexAttribPointer( wNormals + i, 4, GL_FLOAT, GL_FALSE,
                              sizeof( vec4 ), model->normals[i] );
-   }
-
-   fprintf( stderr, "wJoints: %d\n"
-                    "wBiases: %d\n"
-                    "wPositions: %d\n"
-                    "wNormals: %d\n", wJoints, wBiases, wPositions, wNormals );
-
-   for ( i = 0; i < model->numTris; ++i ) {
-      int j;
-      for ( j = 0; j < 3; ++j ) {
-         //int idx = model->indices[i * 3 + j];
-         /*
-         fprintf( stderr, "jIdx: %s\nBias: %s\nPos[0]: %s\nPos[1]: %s\n"
-                          "Pos[2]: %s\nPos[3]: %s\n %d\n\n",
-                          v4Txt( *((vec4 *)&model->jIndex[idx] ) ),
-                          v4Txt( *((vec4 *)&model->biases[idx] ) ),
-                          v3Txt( model->positions[0][idx] ),
-                          v3Txt( model->positions[1][idx] ),
-                          v3Txt( model->positions[2][idx] ),
-                          v3Txt( model->positions[3][idx] ),
-                          idx );
-         */
-      }
    }
 
    //////////////////// END  MD5 SKELETON TEST ///////////////////////

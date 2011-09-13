@@ -150,8 +150,8 @@ md5BaseMesh * md5LoadMesh( FILE * fp ) {
       /* Calculate vertex normals for the current bind-pose mesh. */
       for ( j = 0; j < mesh->numTris; ++j ) {
          vec3 A, B;
-         A = curVerts[mesh->tris[j].vtx2] - curVerts[mesh->tris[j].vtx1];
-         B = curVerts[mesh->tris[j].vtx3] - curVerts[mesh->tris[j].vtx1];
+         A = curVerts[mesh->tris[j].vtx3] - curVerts[mesh->tris[j].vtx1];
+         B = curVerts[mesh->tris[j].vtx2] - curVerts[mesh->tris[j].vtx1];
 
          // Add this face's normal vector to all other normal vectors for
          // each of the face's vertices.
