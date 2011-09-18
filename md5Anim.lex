@@ -22,8 +22,10 @@
 
 %{    
 #include <stdlib.h>
+#include "md5Anim.h"
 
 int lineno = 1;  /* To keep track of the line number for debugging */
+void md5animerror( const char * );
 %}
 
 %option noinput nounput
@@ -33,54 +35,34 @@ int lineno = 1;  /* To keep track of the line number for debugging */
 "//".*                     { ; /* Ignore comments */                       }
 MD5Version.*               { ; /* Ignore version */                        }
 commandline.*              { ; /* Ignore ( internal Doom3 command ) */     }                        
-numFrames                  { printf( "numFrames");
-                                    /*return TOK_NFRAMES; */                          }
-numJoints                  { printf( "numJoints" );
-                                    /*return TOK_NJOINTS; */                          }
-frameRate                  { printf( "frameRate");
-                                    /*return TOK_FRATE;   */                          }
-numAnimatedComponents      { printf( "numAnimatedComponenets");
-                                    /*return TOK_NANIM;   */                          }
-hierarchy                  { printf( "hierarchy" ); 
-                                    /*return TOK_HIERARCHY; */                        }  
-bounds                     { printf( "bounds" );
-                                    /*return TOK_BOUNDS;    */                        }
-baseFrame                  { printf( "baseFrame" );
-                                    /*return TOK_BFRAME;    */                        }
-frame                      { printf( "frame"     );
-                                    /*return TOK_FRAME;     */                        }
-[(){}]                     { printf( " %c ", yytext[0] );
-                                    /*return yytext[0];     */                        }
-"\n"                       { printf( "\n" ); lineno++;                               }
-"-"?[0-9]+"."[0-9]+        { printf( " float " );  
-                                    /*md5animlval.fval = strtod( yytext, NULL );
-                                    return TOK_FNUM;  */                              }
-"-"?[0-9]+                 { printf( " int " );
-                                    /*md5animlval.zval = strtod( yytext, NULL );
-                                     return TOK_ZNUM;  */                             }
-\"[^\n\"]*\"               { printf( "string" ); 
-                                    /*md5animlval.sval = strdup( yytext ); 
-                                                return TOK_STRING; */                 }
+numFrames                  { return TOK_NFRAMES;                           }
+numJoints                  { return TOK_NJOINTS;                           }
+frameRate                  { return TOK_FRATE;                             }
+numAnimatedComponents      { return TOK_NANIM;                             }
+hierarchy                  { return TOK_HIERARCHY;                         }  
+bounds                     { return TOK_BOUNDS;                            }
+baseframe                  { return TOK_BFRAME;                            }
+frame                      { return TOK_FRAME;                             }
+[(){}]                     { return yytext[0];                             }
+"\n"                       { lineno++;                                     }
+"-"?[0-9]+"."[0-9]+        { md5animlval.rVal = strtod( yytext, NULL );
+                                    return TOK_FNUM;                       }
+"-"?[0-9]+                 { md5animlval.zVal = strtod( yytext, NULL );
+                                     return TOK_ZNUM;                      }
+\"[^\n\"]*\"               { md5animlval.sVal = strdup( yytext ); 
+                                                return TOK_STRING;         }
 %%
 
 /* I have no idea what this does, but without this function, everything breaks */
-int md5Animwrap( void )
+int md5animwrap( void )
 {
    return 1;
 }
 
 /* Prints the error and associated string, if it occurs */
-int md5animerror( void * nil, const * err )
+void md5animerror( const char * err )
 {
    fprintf( stderr, "md5anim error: %s at line <%d> \n", err, lineno );
-   return 0;
-}
-
-/* Temp function to test it the lexer works */
-int main( int argc, char * argv[] )
-{
-   md5Animlex();
-   return 0;
 }
 
 /* md5Anim.lex */
