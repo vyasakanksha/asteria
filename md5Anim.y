@@ -60,58 +60,63 @@
 %%
 
 md5Anim:
-         "numFrames" "int"
-         "numjoints" "int"
-         "frameRate" "int"
-         "numAnimatedComponents" "int"
-         hierarchy bounds baseframe frame
-         { printf( "numFrames %d\n numJoints %d\n frameRate %d\n numAnimatedComponents %d \n", $2, $4, $6, $8 );}
+         "numFrames" "int" 
+         "numJoints" "int" 
+         "frameRate" "int" 
+         "numAnimatedComponents" "int" 
+         hierarchy bounds baseframe frame            
        ;       
 
 hierarchy:
-           "hierarchy" '{' hierarchySet '}' { printf( "hiererchy { \n"); }
+           "hierarchy" '{' hierarchySet '}' 
          ;  
 
 hierarchySet:
-              hierarchySet "string" "int" "int" "int" 
-              { printf( "%s %d %d %d\n", $2, $3, $4, $5); }
-
-            | "string" "int" "int" "int" 
-              { printf( "%s %d %d %d\n", $1, $2, $3, $4); }
-            ;
-
+              hierarchySet hierarchyValues
+            | hierarchyValues 
+            ;  
+              
+hierarchyValues:              
+                 "string" "int" "int" "int" 
+               ;
 bounds:         
-        "bounds" '{' boundsSet '}' { printf( "} \n\n bounds { \n"); }
+        "bounds" '{' boundsSet '}'
       ;
 
 boundsSet: 
-           boundsSet '('"real" "real" "real"')' '('"real" "real" "real"')'
-           { printf( "( %f %f %f ) ( %f %f %f )", $3, $4, $5, $8, $9, $10 ); }
-
-         | '('"real" "real" "real"')' '('"real" "real" "real"')'
-           { printf( "( %f %f %f ) ( %f %f %f )", $2, $3, $4, $7, $8, $9 ); }
-         ;
+           boundsSet boundsValues
+         | boundsValues 
+         ;  
+           
+           
+boundsValues:
+              '('"real" "real" "real"')' '('"real" "real" "real"')'
+            ;
 
 baseframe:
-           "baseframe" '{' baseframeSet '}' { printf( "} \n\n bounds { \n"); }
-         ;  
+           "baseframe" '{' baseframeSet '}' 
+         ;
 
-baseframeSet: 
-              baseframeSet '(' "real" "real" "real" ')' 
-                           '(' "real" "real" "real" ')'
-              { printf( "( %f %f %f ) ( %f %f %f )", $3, $4, $5, $8, $9, $10 ); }
-
-            | '(' "real" "real" "real" ')' '(' "real" "real" "real" ')'
-              { printf( "( %f %f %f ) ( %f %f %f )", $2, $3, $4, $7, $8, $9 ); }
-            ;         
+baseframeSet: baseframeSet baseframeValues
+            | baseframeValues
+            ;
+              
+baseframeValues:              
+                 '(' "real" "real" "real" ')' '(' "real" "real" "real" ')'
+               ;
          
 frame:         
-       "frame" "int" '{' frameSet '}' { printf( "} \n\nframe %d\n", $2); }
-     ;  
+       frame frameSet
+     | frameSet
+     ;
+       
+frameSet: 
+          "frame" "int" '{' frameValues '}' 
+        ;     
 
-frameSet: frameSet '<'"real"'>' { printf( "<%f>", $3 ); }
-        |           
-        ;
+frameValues: frameValues "real" 
+           | /* epsilon */          
+           ;
 %%
 
 

@@ -76,6 +76,22 @@ lex.md5Mesh.c: md5Mesh.lex
 
 CLEANFILES += lex.md5Mesh.c md5Mesh.tab.c include/md5Mesh.h md5Mesh
 
+md5Anim: obj/md5Anim.tab.o obj/lex.md5Anim.o obj/md5AnimTest.o
+	@ echo "  [LD]       $@"
+	@ $(LD) $(LDFLAGS) $^ -o $@
+
+include/md5Anim.h: md5Anim.tab.c
+
+md5Anim.tab.c: md5Anim.y
+	@ echo "  [BISON]    $@"
+	@ bison -p md5anim -b md5Anim --defines=include/md5Anim.h -o $@ $<
+
+lex.md5Anim.c: md5Anim.lex
+	@ echo "  [LEX]      $@"
+	@ flex -P md5anim --yylineno -o $@ $<
+
+CLEANFILES += lex.md5Anim.c md5Anim.tab.c include/md5Anim.h md5Anim
+
 ########################## End Lex/Yacc Rules ###############################
 
 clean:
