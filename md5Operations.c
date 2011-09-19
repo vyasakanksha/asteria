@@ -226,7 +226,7 @@ md5BufferedMesh * md5BufferMesh( md5BaseMesh * mesh ) {
    glBindBuffer( GL_ARRAY_BUFFER, ret->vBuf );
    glBufferData(
          GL_ARRAY_BUFFER, 
-         ( sizeof( GLfloat ) + sizeof( vec3 ) ) * 24 * mesh->numTris,
+         ( sizeof( GLfloat ) + sizeof( vec3 ) ) * 8 * mesh->numTris,
          mesh->jIndex,
          GL_STATIC_DRAW );
 
