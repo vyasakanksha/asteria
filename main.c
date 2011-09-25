@@ -53,6 +53,20 @@ int main( int argc, char * argv[] ) {
 
    SDL_Rect ** modes = SDL_ListModes( NULL, SDL_OPENGL );
 
+   if ( argc == 2 ) {
+      if ( NULL == ( md5File = fopen( argv[1], "r" ) ) ) {
+         fprintf( stderr, "Error loading '%s': %s\n",
+                          argv[1], strerror( errno ) );
+         exit( 1 );
+      }
+   } else {
+      char * path;
+      fprintf( stderr, "usage: %s [*.md5mesh]\n",
+                       ( ( path = strrchr( argv[0], '/' ) )
+                       ? path
+                       : argv[0] ) );
+      exit( 1 );
+   }
    if ( modes == NULL ) {
       fprintf( stderr, "No video modes available...\n" );
       exit( 1 );
@@ -87,20 +101,6 @@ int main( int argc, char * argv[] ) {
       exit( 1 );
    }
 
-   if ( argc == 2 ) {
-      if ( NULL == ( md5File = fopen( argv[1], "r" ) ) ) {
-         fprintf( stderr, "Error loading '%s': %s\n",
-                          argv[1], strerror( errno ) );
-         exit( 1 );
-      }
-   } else {
-      char * path;
-      fprintf( stderr, "usage: %s [*.md5mesh]\n",
-                       ( ( path = strrchr( argv[0], '/' ) )
-                       ? path
-                       : argv[0] ) );
-      exit( 1 );
-   }
    fprintf( stderr, "Loading model... " );
    ticks = SDL_GetTicks();
    if ( NULL == ( model = md5LoadMesh( md5File ) ) ) {
