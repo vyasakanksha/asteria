@@ -25,8 +25,11 @@
 #include <errno.h>
 
 #include "md5Models.h"
+#include "gfxShader.h"
 
 #include <unistd.h>
+
+#define MD5_MAX_JOINTS 64
 
 extern int md5meshparse( md5MeshData * ); 
 extern void md5meshset_in( FILE * );
@@ -238,4 +241,77 @@ md5BufferedMesh * md5BufferMesh( md5BaseMesh * mesh ) {
          GL_STATIC_DRAW );
 
    return ret;
+}
+
+GLint md5VarJoints, md5VarBiases, md5VarPositions, md5VarNormals;
+
+GLint md5UniPos[MD5_MAX_JOINTS], md5UniRot[MD5_MAX_JOINTS];
+
+GLint md5ShaderVtx, md5ShaderFrag, md5ShaderProg;
+
+void md5InitSystem( void ) {
+   char varName[128];
+   int i;
+   GLint err;
+
+   md5ShaderVtx  = gfxMakeShader( "shader/md5skel.vtx" );
+   md5ShaderFrag = gfxMakeShader( "shader/test.frg" );
+   md5ShaderProg = gfxMakeProgram( md5ShaderVtx, md5ShaderFrag );
+
+   md5VarJoints    = glGetAttribLocation( md5ShaderProg, "wJoints" );
+   md5VarBiases    = glGetAttribLocation( md5ShaderProg, "wBiases" );
+   md5VarPositions = glGetAttribLocation( md5ShaderProg, "wPositions" );
+   md5VarNormals   = glGetAttribLocation( md5ShaderProg, "wNormals" );
+
+   // The OR of anything with '-1' is still '-1'. So we can test if any
+   // of these things went wrong by ORing them all together.
+   err = md5ShaderVtx | md5ShaderFrag   | md5ShaderProg | md5VarJoints
+       | md5VarBiases | md5VarPositions | md5VarNormals ;
+
+   for ( i = 0; i < MD5_MAX_JOINTS; ++i ) {
+
+      // Query the OpenGL 'names' of the uniform variables that hold
+      // bone positions and orientations.
+      snprintf( varName, 128, "jPos[%d]", i );
+      md5UniPos[i] = glGetUniformLocation( md5ShaderProg, varName );
+      snprintf( varName, 128, "jQuat[%d]", i );
+      md5UniRot[i] = glGetUniformLocation( md5ShaderProg, varName );
+
+      // Same as the big OR above.
+      err |= md5UniPos[i] | md5UniRot[i];
+   }
+
+   if ( err < 0 ) {
+      fprintf( stderr, "Unable to load shader and identify variables." );
+   }
+} 
+
+void md5SetJoint( int i, vec3 pos, vec4 rot ) {
+   GLint prog;
+   glGetIntegerv( GL_CURRENT_PROGRAM, &prog );
+   if ( prog != md5ShaderProg ) {
+      fprintf( stderr, "Attempt to use md5SetJoint with wrong shader.\n" );
+      return;
+   } else {
+      glUniform3fv( md5UniPos[i], 1, (GLfloat * )&( pos ) );
+      glUniform4fv( md5UniRot[i], 1, (GLfloat * )&( rot ) );
+   }
+}
+
+void md5PrepareMesh( md5BufferedMesh * bMesh ) {
+   int i;
+
+   glBindBuffer( GL_ARRAY_BUFFER, bMesh->vBuf );
+   glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, bMesh->iBuf );
+
+   glVertexAttribPointer( md5VarJoints, 4, GL_FLOAT, GL_FALSE,
+                          sizeof( GLfloat ) * 4, bMesh->jIndex );
+   glVertexAttribPointer( md5VarBiases, 4, GL_FLOAT, GL_FALSE,
+                          sizeof( GLfloat ) * 4, bMesh->biases );
+   for ( i = 0; i < 4; ++i ) {
+      glVertexAttribPointer( md5VarPositions + i, 4, GL_FLOAT, GL_FALSE,
+                             sizeof( vec3 ), bMesh->positions[i] );
+      glVertexAttribPointer( md5VarNormals + i, 4, GL_FLOAT, GL_FALSE,
+                             sizeof( vec4 ), bMesh->normals[i] );
+   }
 }
