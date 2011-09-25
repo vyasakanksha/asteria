@@ -18,9 +18,9 @@
 #                                                                           #
 #############################################################################
 
-CC      = gcc
+CC      = clang
 CFLAGS  = -g -Wall -Werror -O2 -march=native -Iinclude
-LD      = gcc
+LD      = clang
 LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm
 
 MODULES = main gfxInit vMath md5Mesh.tab lex.md5Mesh md5Operations gfxShader
