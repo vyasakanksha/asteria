@@ -25,6 +25,9 @@
 #include "vMath.h"
 #include "libInclude.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif // C++
 
 typedef struct md5Joint {
    int         parent;
@@ -146,5 +149,9 @@ typedef struct md5AnimData {
 md5BaseMesh * md5LoadMesh( FILE * fp );
 
 md5BufferedMesh * md5BufferMesh( md5BaseMesh * mesh );
+
+#ifdef __cplusplus
+}
+#endif // C++
 
 #endif /* md5Models.h */
