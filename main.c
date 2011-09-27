@@ -34,14 +34,13 @@
 #include "gfxModes.h"
 #include "gfxText.h"
 #include "gfxConfig.h"
+#include "gfxDebug.h"
 
 int main( int argc, char * argv[] ) { 
 
    int i;
 
    double GL_Version;
-
-   float offset;
 
    gfxLoadConfig();
 
@@ -90,7 +89,9 @@ int main( int argc, char * argv[] ) {
    glBindTexture( GL_TEXTURE_2D, gfxTextureFromTiff( "res/FreeMono.tiff" ) );
    glLoadIdentity();
 
-   for ( i = 0; i < 51; ++i ) {
+   for ( i = 0; i < 500; ++i ) {
+
+      gfxRegisterFrame();
 
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -98,24 +99,11 @@ int main( int argc, char * argv[] ) {
 
       gfxEnterOverlayMode();
 
-      glColor3f( .8, .8, .8 );
-      offset = gfxDrawDbgTextFmt( 0.01, 0.02, 0.02, "GL Version: " );
-      glColor3f( .2, 1.0, .2 );
-      gfxDrawDbgTextFmt( offset, 0.02, 0.02, "%2.1f", GL_Version );
-      glColor3f( .8, .8, .8 );
-      offset = gfxDrawDbgTextFmt( 0.01, 0.0, 0.02,  "GL Error:   " );
-
-      if ( glGetError() != GL_NO_ERROR ) {
-         glColor3f( 1, 0, 0 );
-      } else {
-         glColor3f( .6, .6, 1 );
-      }
-
-      gfxDrawDbgTextFmt( offset, 0.0, 0.02, "%s", gluErrorString( glGetError() ) );
+      gfxDrawDbgHUD();
 
       glFinish(); 
 
-      SDL_Delay( 50 );
+      SDL_Delay( 20 );
 
       SDL_GL_SwapBuffers();
 
