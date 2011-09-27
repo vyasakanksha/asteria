@@ -41,6 +41,8 @@ int main( int argc, char * argv[] ) {
 
    double GL_Version;
 
+   float offset;
+
    gfxLoadConfig();
 
    SDL_Init( SDL_INIT_EVERYTHING );
@@ -96,7 +98,20 @@ int main( int argc, char * argv[] ) {
 
       gfxEnterOverlayMode();
 
-      gfxDrawDbgTextFmt( 0, 0.02, 0.02, "\n" );
+      glColor3f( .8, .8, .8 );
+      offset = gfxDrawDbgTextFmt( 0.01, 0.02, 0.02, "GL Version: " );
+      glColor3f( .2, 1.0, .2 );
+      gfxDrawDbgTextFmt( offset, 0.02, 0.02, "%2.1f", GL_Version );
+      glColor3f( .8, .8, .8 );
+      offset = gfxDrawDbgTextFmt( 0.01, 0.0, 0.02,  "GL Error:   " );
+
+      if ( glGetError() != GL_NO_ERROR ) {
+         glColor3f( 1, 0, 0 );
+      } else {
+         glColor3f( .6, .6, 1 );
+      }
+
+      gfxDrawDbgTextFmt( offset, 0.0, 0.02, "%s", gluErrorString( glGetError() ) );
 
       glFinish(); 
 

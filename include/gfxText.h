@@ -22,6 +22,6 @@
 #ifndef _GFX_TEXT_H_
 #define _GFX_TEXT_H_
 
-void gfxDrawDbgTextFmt( float x, float y, float size, const char * str, ... );
+float gfxDrawDbgTextFmt( float x, float y, float size, const char * str, ... );
 
 #endif // gfxText.h

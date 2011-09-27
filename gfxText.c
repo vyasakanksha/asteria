@@ -50,7 +50,7 @@ static const int charLookup[][2] = {
    ['|'] = { 4, 0 }, [':'] = { 5, 0 }, ['"'] = {  6, 0 }, ['<'] = {  7, 0 },
    ['>'] = { 8, 0 }, ['?'] = { 9, 0 }, [' '] = { 10, 0 } };
 
-void gfxVDrawDbgTextFmt( float x, float y, float size,
+float gfxVDrawDbgTextFmt( float x, float y, float size,
                       const char * fmt, va_list argls ) {
    char out[GFX_MAX_STR_LEN];
    int i;
@@ -86,13 +86,19 @@ void gfxVDrawDbgTextFmt( float x, float y, float size,
       }
       x += ( size * 0.6667f );
    }
+
+   return x;
 }
 
 // This code assumes we are in 'overlay mode'. Strings are truncated to 256
 // characters.
-void gfxDrawDbgTextFmt( float x, float y, float size, const char * str, ... ) {
+float gfxDrawDbgTextFmt( float x, float y, float size, const char * str, ... ) {
    va_list argls;
+   float ret;
+
    va_start( argls, str );
-   gfxVDrawDbgTextFmt( x, y, size, str, argls );
+   ret = gfxVDrawDbgTextFmt( x, y, size, str, argls );
    va_end( argls );
+
+   return ret;
 }
