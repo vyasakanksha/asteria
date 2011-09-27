@@ -19,7 +19,10 @@
  ****************************************************************************/
 
 #include <tiffio.h>
+#include <stdio.h>
+#include <stdint.h>
 
+#include "libInclude.h"
 #include "gfxTexture.h"
 
 GLint gfxTextureFromTiff( const char * path ) {
@@ -27,10 +30,27 @@ GLint gfxTextureFromTiff( const char * path ) {
 
    int w, h;
 
+   GLubyte * imgDat;
+
+   if ( strcmp( strrchr( path, '.' ), ".tiff" ) != 0 ) {
+      fprintf( stderr, "Texture file must be a .tiff\n" );
+      return -1;
+   }
+
    image = TIFFOpen( path, "r" );
 
    TIFFGetField( image, TIFFTAG_IMAGEWIDTH, &w );
    TIFFGetField( image, TIFFTAG_IMAGELENGTH, &h );
 
+   imgDat = malloc( sizeof( uint32_t ) * w * h );
+
+   TIFFReadRGBAImage( image, w, h, (uint32 *)imgDat, 0 );
+
    TIFFClose( image );
+
+   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+
+   return gluBuild2DMipmaps( GL_TEXTURE_2D, GL_RGBA, w, h, GL_RGBA,
+                             GL_UNSIGNED_INT_8_8_8_8, imgDat );
 }
