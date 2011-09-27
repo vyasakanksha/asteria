@@ -18,47 +18,16 @@
  *                                                                          *
  ****************************************************************************/
 
-/* gfxInit.c */
+// gfxModes.h
+#ifndef _GFX_MODES_H_
+#define _GFX_MODES_H_
 
-#include "libInclude.h"
+// These functions are designed to be called once each per frame. First we
+// enter 3D Mode and draw the scene, then we enter Overlay Mode and draw
+// anything that isn't a part of the 3D world.
 
-#include "gfxInit.h"
-#include "gfxConfig.h"
+void gfxEnter3DMode( void );
 
-/* These are presently very simple configurations. As the game matures and   *
- * more advanced configurations become necessary, this file will evolve.     */
+void gfxEnterOverlayMode( void );
 
-void gfxResizeScreen( GLuint width, GLuint height ) {
-
-   /* Let OpenGL know we're working with a width by height context. */
-   glViewport( 0, 0, (GLsizei)width, (GLsizei)height );
-
-}
-
-void gfxInitializeOpenGL( void ) {
-
-   /* Clear the screen to Black between frames. */
-   glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-
-   /* Set Depth clear value to 1.0f */
-   glClearDepth( 1.0f );
-
-   // Specify how to perform depth testing.
-   glDepthFunc( GL_LEQUAL );
-
-}
-
-/* FIXME: This will be moved into the gfx Configuration portion of the main  *
- * Game State structure at a later date.                                     */
-static SDL_Surface * gfxScreen;
-
-void gfxSetupOsWindow( GLuint width, GLuint height ) {
-   gfxScreen = SDL_SetVideoMode( width, height, 0, SDL_OPENGL | SDL_HWSURFACE
-                                                 | ( gfxConfig.fullscreen
-                                                   ? SDL_FULLSCREEN
-                                                   : 0 ) );
-   if ( !gfxScreen ) {
-      fprintf( stderr, "Failed to do stuff1111!!!\n" );
-   }
-   gfxResizeScreen( width, height );
-}
+#endif // gfxModes.h

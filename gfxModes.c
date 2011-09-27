@@ -18,47 +18,32 @@
  *                                                                          *
  ****************************************************************************/
 
-/* gfxInit.c */
-
-#include "libInclude.h"
-
-#include "gfxInit.h"
+#include "gfxModes.h"
 #include "gfxConfig.h"
 
-/* These are presently very simple configurations. As the game matures and   *
- * more advanced configurations become necessary, this file will evolve.     */
+// Call this before doing anything in the 3D world.
+void gfxEnter3DMode( void ) {
+   // Aspect ratio
+   GLfloat ratio = (GLfloat)gfxConfig.xRes / (GLfloat)gfxConfig.yRes;
 
-void gfxResizeScreen( GLuint width, GLuint height ) {
+   // Prepare a perspective projection.
+   glMatrixMode( GL_PROJECTION );
+   glLoadIdentity();
+   gluPerspective( 45.0f, ratio, 0.01f, 100.0f );
 
-   /* Let OpenGL know we're working with a width by height context. */
-   glViewport( 0, 0, (GLsizei)width, (GLsizei)height );
+   glMatrixMode( GL_MODELVIEW );
 
-}
-
-void gfxInitializeOpenGL( void ) {
-
-   /* Clear the screen to Black between frames. */
-   glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-
-   /* Set Depth clear value to 1.0f */
-   glClearDepth( 1.0f );
-
-   // Specify how to perform depth testing.
-   glDepthFunc( GL_LEQUAL );
+   // Turn on depth testing.
+   glEnable( GL_DEPTH_TEST );
 
 }
 
-/* FIXME: This will be moved into the gfx Configuration portion of the main  *
- * Game State structure at a later date.                                     */
-static SDL_Surface * gfxScreen;
+// Call this before drawing any part of the overlay.
+void gfxEnterOverlayMode( void ) {
+   glMatrixMode( GL_PROJECTION );
+   glLoadIdentity();
 
-void gfxSetupOsWindow( GLuint width, GLuint height ) {
-   gfxScreen = SDL_SetVideoMode( width, height, 0, SDL_OPENGL | SDL_HWSURFACE
-                                                 | ( gfxConfig.fullscreen
-                                                   ? SDL_FULLSCREEN
-                                                   : 0 ) );
-   if ( !gfxScreen ) {
-      fprintf( stderr, "Failed to do stuff1111!!!\n" );
-   }
-   gfxResizeScreen( width, height );
+   gluOrtho2D( 0.0f, 1.0f, 1.0f, 0.0f );
+
+   glMatrixMode( GL_MODELVIEW );
 }
