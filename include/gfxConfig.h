@@ -29,11 +29,13 @@
 // AA mode and renderer-specific settings ( LoD, etc ).
 typedef struct gfxConfigDat {
    int xRes, yRes;  // Screen resolution
-   bool fullscreen; // Self explanatory, should we be in fullscreen mode?
+   int fullscreen;  // Self explanatory, should we be in fullscreen mode?
 } gfxConfigDat;
 
 extern const char * gfxConfigFile;
 
 extern gfxConfigDat gfxConfig;
+
+void gfxLoadConfig( void );
 
 #endif // gfxConfig.h

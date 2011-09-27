@@ -24,7 +24,7 @@ LD      = clang
 LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm -ltiff
 
 MODULES = main gfxInit vMath md5Mesh.tab lex.md5Mesh md5Operations gfxShader \
-			 gfxTexture gfxText
+			 gfxTexture gfxText gfxModes gfxConfig
 
 OBJ = $(patsubst %,obj/%.o,$(MODULES))
 DEP = $(patsubst %,dep/%.M,$(MODULES))

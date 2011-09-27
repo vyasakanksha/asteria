@@ -30,19 +30,18 @@
 
 #include "libInclude.h"
 #include "gfxInit.h"
-#include "gfxShader.h"
 #include "gfxTexture.h"
+#include "gfxModes.h"
 #include "gfxText.h"
-
-#include "vMath.h"
-
-#include "md5Models.h"
+#include "gfxConfig.h"
 
 int main( int argc, char * argv[] ) { 
 
    int i;
 
    double GL_Version;
+
+   gfxLoadConfig();
 
    SDL_Init( SDL_INIT_EVERYTHING );
 
@@ -53,7 +52,7 @@ int main( int argc, char * argv[] ) {
       exit( 1 );
    } else if ( modes == (SDL_Rect **)-1 ) {
       fprintf( stderr, "Video modes unrestricted\n" );
-      gfxSetupOsWindow( 1024, 768 );
+      gfxSetupOsWindow( gfxConfig.xRes, gfxConfig.yRes );
    } else {
       gfxSetupOsWindow( (*modes)->w, (*modes)->h );
       for ( ; *modes; ++modes ) {
@@ -88,13 +87,16 @@ int main( int argc, char * argv[] ) {
 
    glBindTexture( GL_TEXTURE_2D, gfxTextureFromTiff( "res/FreeMono.tiff" ) );
    glLoadIdentity();
-   glTranslatef( 0.0f, 0.0f, -1.0f );
 
-   for ( i = 0; i < 50; ++i ) {
+   for ( i = 0; i < 51; ++i ) {
 
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-      gfxDrawDbgTextFmt( 0, 0, 0.02, "hello, world\n" );
+      gfxEnter3DMode();
+
+      gfxEnterOverlayMode();
+
+      gfxDrawDbgTextFmt( 0, 0.02, 0.02, "\n" );
 
       glFinish(); 
 

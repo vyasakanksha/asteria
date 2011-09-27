@@ -43,7 +43,10 @@ void gfxEnterOverlayMode( void ) {
    glMatrixMode( GL_PROJECTION );
    glLoadIdentity();
 
-   gluOrtho2D( 0.0f, 1.0f, 1.0f, 0.0f );
+   glOrtho( 0, 1, 0, 1, -1, 1 );
 
    glMatrixMode( GL_MODELVIEW );
+   glLoadIdentity();
+
+   glUseProgram( 0 );
 }

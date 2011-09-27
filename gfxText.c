@@ -19,6 +19,7 @@
  ****************************************************************************/
 
 #include "libInclude.h"
+#include "gfxConfig.h"
 
 #define GFX_MAX_STR_LEN 256
 
@@ -53,8 +54,13 @@ void gfxVDrawDbgTextFmt( float x, float y, float size,
                       const char * fmt, va_list argls ) {
    char out[GFX_MAX_STR_LEN];
    int i;
+   // Aspect ratio
+   GLfloat ratio = (GLfloat)gfxConfig.xRes / (GLfloat)gfxConfig.yRes;
+
 
    vsnprintf( out, GFX_MAX_STR_LEN, fmt, argls );
+
+   y *= ratio;
 
    for ( i = 0; out[i] != '\0'; ++i ) {
       float topX = charLookup[(int)out[i]][0] * ( 1.0f / 12.0f ),
@@ -70,9 +76,9 @@ void gfxVDrawDbgTextFmt( float x, float y, float size,
                glTexCoord2f( topX + ( 1.0f / 12.0f ), topY );
                glVertex2f( x + ( size * 0.6667f ), y );
                glTexCoord2f( topX, topY + ( 1.0f / 8.0f ) );
-               glVertex2f( x, y + size );
+               glVertex2f( x, y + ( size * ratio ) );
                glTexCoord2f( topX + ( 1.0f / 12.0f ), topY + ( 1.0f / 8.0f ) );
-               glVertex2f( x + ( size * 0.6667f ), y + size );
+               glVertex2f( x + ( size * 0.6667f ), y + ( size * ratio ) );
             glEnd();
          default:
             // We don't print any newline/tab/return characters.
@@ -82,8 +88,8 @@ void gfxVDrawDbgTextFmt( float x, float y, float size,
    }
 }
 
-// This code assumes we are in 'overlay mode'. Incidentally, overlay mode
-// does not yet exist. Strings are truncated to 256 characters.
+// This code assumes we are in 'overlay mode'. Strings are truncated to 256
+// characters.
 void gfxDrawDbgTextFmt( float x, float y, float size, const char * str, ... ) {
    va_list argls;
    va_start( argls, str );

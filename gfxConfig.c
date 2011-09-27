@@ -20,7 +20,7 @@
 
 #include "gfxConfig.h"
 
-const char * gfxConfigFile = "render.conf;
+const char * gfxConfigFile = "render.conf";
 
 gfxConfigDat gfxConfig;
 
@@ -29,5 +29,5 @@ gfxConfigDat gfxConfig;
 void gfxLoadConfig( void ) {
   gfxConfig.xRes = 1024;
   gfxConfig.yRes = 768;
-  gfxConfig.fullscrean = false;
+  gfxConfig.fullscreen = 0;
 }
