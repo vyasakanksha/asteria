@@ -20,6 +20,7 @@
 
 #include "libInclude.h"
 #include "gfxConfig.h"
+#include "gfxTexture.h"
 
 #define GFX_MAX_STR_LEN 256
 
@@ -50,13 +51,28 @@ static const int charLookup[][2] = {
    ['|'] = { 4, 0 }, [':'] = { 5, 0 }, ['"'] = {  6, 0 }, ['<'] = {  7, 0 },
    ['>'] = { 8, 0 }, ['?'] = { 9, 0 }, [' '] = { 10, 0 } };
 
+static const char * bitMapFontFile = "res/FreeMono.tiff";
+
+static GLint bmpFontTexture = 0;
+
+void gfxInitBitMapFont( void ) {
+   bmpFontTexture = gfxTextureFromTiff( bitMapFontFile );
+   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+}
+
 float gfxVDrawDbgTextFmt( float x, float y, float size,
                       const char * fmt, va_list argls ) {
    char out[GFX_MAX_STR_LEN];
    int i;
+
    // Aspect ratio
    GLfloat ratio = (GLfloat)gfxConfig.xRes / (GLfloat)gfxConfig.yRes;
 
+   glEnable( GL_BLEND );
+
+   glEnable( GL_TEXTURE_2D );
+
+   glBindTexture( GL_TEXTURE_2D, bmpFontTexture );
 
    vsnprintf( out, GFX_MAX_STR_LEN, fmt, argls );
 
@@ -86,6 +102,8 @@ float gfxVDrawDbgTextFmt( float x, float y, float size,
       }
       x += ( size * 0.6667f );
    }
+
+   glDisable( GL_TEXTURE_2D );
 
    return x;
 }

@@ -24,4 +24,6 @@
 
 float gfxDrawDbgTextFmt( float x, float y, float size, const char * str, ... );
 
+void gfxInitBitMapFont( void );
+
 #endif // gfxText.h

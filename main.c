@@ -43,7 +43,6 @@ int main( int argc, char * argv[] ) {
    double GL_Version;
 
    gfxLoadConfig();
-
    SDL_Init( SDL_INIT_EVERYTHING );
 
    SDL_Rect ** modes = SDL_ListModes( NULL, SDL_OPENGL );
@@ -82,11 +81,8 @@ int main( int argc, char * argv[] ) {
       exit( 1 );
    }
 
-   glEnable( GL_TEXTURE_2D );
-   glEnable( GL_BLEND );
-   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+   gfxInitBitMapFont();
 
-   glBindTexture( GL_TEXTURE_2D, gfxTextureFromTiff( "res/FreeMono.tiff" ) );
    glLoadIdentity();
 
    for ( i = 0; i < 500; ++i ) {
