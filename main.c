@@ -36,16 +36,33 @@
 #include "gfxConfig.h"
 #include "gfxDebug.h"
 
+#include "md5Models.h"
+
 int main( int argc, char * argv[] ) { 
 
    int i;
 
    double GL_Version;
 
+   FILE * meshFile;
+
    gfxLoadConfig();
    SDL_Init( SDL_INIT_EVERYTHING );
 
    SDL_Rect ** modes = SDL_ListModes( NULL, SDL_OPENGL );
+
+   if ( argc < 2 ) { 
+      char * n;
+      fprintf( stderr, "usage: %s [md5MeshFile]\n",
+                       ( ( n = strrchr( argv[0], '/' ) )
+                       ? n
+                       : argv[0] ) );
+      exit( 1 );
+   } else if ( ( meshFile = fopen( argv[1], "r" ) ) == NULL ) {
+      fprintf( stderr, "Could not open '%s': %s\n",
+                       argv[1], strerror( errno ) );
+      exit( 1 );
+   }
 
    if ( modes == NULL ) {
       fprintf( stderr, "No video modes available...\n" );
@@ -81,18 +98,45 @@ int main( int argc, char * argv[] ) {
       exit( 1 );
    }
 
+   md5InitSystem();
+
    gfxInitBitMapFont();
 
-   glLoadIdentity();
+   md5BaseMesh     * base = md5LoadMesh( meshFile );
+   md5BufferedMesh * mesh = md5BufferMesh( base );
 
-   for ( i = 0; i < 500; ++i ) {
+   SDL_Event event;
+
+   int keepGoing = 1;
+
+   for ( i = 0; keepGoing; ++i ) {
+      int j;
 
       gfxRegisterFrame();
 
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
 
       gfxEnter3DMode();
 
+      // md5 Drawing Code.
+      md5LoadState();
+
+      for ( j = 0; j < base->numJoints; ++j ) {
+         md5SetJoint( j, base->joints[j].position, base->joints[j].orient );
+      }
+
+      md5PrepareMesh( mesh );
+
+      glTranslatef( 0.0f, 0.0f, -4.0f );
+
+      glRotatef( 1.0f * i, 0.0f, 1.0f, 0.0f );
+
+      md5DrawMesh();
+
+      md5ExitState();
+
+      // Overlay drawing code.
       gfxEnterOverlayMode();
 
       gfxDrawDbgHUD();
@@ -103,9 +147,18 @@ int main( int argc, char * argv[] ) {
 
       SDL_GL_SwapBuffers();
 
-   }
+      while ( SDL_PollEvent( &event ) ) {
+         switch( event.type ) {
+            case SDL_KEYDOWN:
+               if ( event.key.keysym.sym == SDLK_q ) {
+                  keepGoing = 0;
+               }
+            default:
+               break;
+         }
+      }
 
-   sleep( 1 );
+   }
 
    SDL_Quit();
 

@@ -119,7 +119,8 @@ typedef struct md5BufferedMesh {
           * biases,
           * positions[4],
           * normals[4];
-          
+
+   GLuint nIdx; // Number of indices
 } md5BufferedMesh;
 
 // Each frame is just an array of joints, each corresponding to a joint in the
@@ -150,6 +151,21 @@ md5BaseMesh * md5LoadMesh( FILE * fp );
 
 md5BufferedMesh * md5BufferMesh( md5BaseMesh * mesh );
 
+// Prepare to render a mesh.
+void md5PrepareMesh( md5BufferedMesh * bMesh );
+
+// Draws the currently active mesh.
+void md5DrawMesh( void );
+
+// Load the proper shaders and other GL state to start rendering md5 models.
+void md5LoadState( void );
+
+void md5ExitState( void );
+
+// Set up all of the state for the md5 shaders. Compile shaders, etc...
+void md5InitSystem( void );
+
+void md5SetJoint( int i, vec3 pos, vec4 rot );
 #ifdef __cplusplus
 }
 #endif // C++

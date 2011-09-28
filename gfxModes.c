@@ -36,6 +36,7 @@ void gfxEnter3DMode( void ) {
    // Turn on depth testing.
    glEnable( GL_DEPTH_TEST );
 
+   glDisable( GL_BLEND );
 }
 
 // Call this before drawing any part of the overlay.

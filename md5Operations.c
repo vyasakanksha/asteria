@@ -78,8 +78,6 @@ md5BaseMesh * md5LoadMesh( FILE * fp ) {
    bindPoseNorms = calloc( numVerts, sizeof( vec3 ) );
 
    pRef = malloc( ( sizeof( GLfloat ) + sizeof( vec3 ) ) * 8 * numVerts );
-   printf( "Allocated %zd bytes for mesh...",
-           ( sizeof( GLfloat ) + sizeof( vec3 ) ) * 8 * numVerts + numTris * 3 * sizeof( GLuint ) );
 
    // Distribute memory pointed to by pRef among the different fields of the
    // return struct. We could be a bit less verbose with the pointer arithmetic
@@ -240,14 +238,18 @@ md5BufferedMesh * md5BufferMesh( md5BaseMesh * mesh ) {
          mesh->indices,
          GL_STATIC_DRAW );
 
+   ret->nIdx = mesh->numTris * 3;
+
    return ret;
 }
 
-GLint md5VarJoints, md5VarBiases, md5VarPositions, md5VarNormals;
+static GLint md5VarJoints, md5VarBiases, md5VarPositions, md5VarNormals;
 
-GLint md5UniPos[MD5_MAX_JOINTS], md5UniRot[MD5_MAX_JOINTS];
+static GLint md5UniPos[MD5_MAX_JOINTS], md5UniRot[MD5_MAX_JOINTS];
 
-GLint md5ShaderVtx, md5ShaderFrag, md5ShaderProg;
+static GLint md5ShaderVtx, md5ShaderFrag, md5ShaderProg;
+
+static GLuint md5NumIndices;
 
 void md5InitSystem( void ) {
    char varName[128];
@@ -286,6 +288,24 @@ void md5InitSystem( void ) {
    }
 } 
 
+void md5LoadState( void ) {
+   glUseProgram( md5ShaderProg );
+
+   glEnableVertexAttribArray( md5VarJoints );
+   glEnableVertexAttribArray( md5VarBiases );
+   glEnableVertexAttribArray( md5VarPositions );
+   glEnableVertexAttribArray( md5VarNormals );
+}
+
+void md5ExitState( void ) {
+   glUseProgram( 0 ); // Switch back to the fixed functionality.
+
+   glDisableVertexAttribArray( md5VarJoints );
+   glDisableVertexAttribArray( md5VarBiases );
+   glDisableVertexAttribArray( md5VarPositions );
+   glDisableVertexAttribArray( md5VarNormals );
+}
+
 void md5SetJoint( int i, vec3 pos, vec4 rot ) {
    GLint prog;
    glGetIntegerv( GL_CURRENT_PROGRAM, &prog );
@@ -314,4 +334,11 @@ void md5PrepareMesh( md5BufferedMesh * bMesh ) {
       glVertexAttribPointer( md5VarNormals + i, 4, GL_FLOAT, GL_FALSE,
                              sizeof( vec4 ), bMesh->normals[i] );
    }
+
+   md5NumIndices = bMesh->nIdx;
+}
+
+void md5DrawMesh( void ) {
+   glDrawElements( GL_TRIANGLES, md5NumIndices, GL_UNSIGNED_INT,
+                  (GLvoid *)0 );
 }
