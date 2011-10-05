@@ -30,8 +30,7 @@
    extern int md5animlex( void );
    extern void md5animerror( void *, const char * );
 
-   static int baseFrameIdx, frameIdx, jointIdx, bit;
-   static int * jointFlags, * jointStartIdx;
+   static int *jointFlags, baseFrameIdx, frameIdx, jointIdx, bit;
 
    static void assignJointBit( md5Joint * joint, int bit, float val )
    {
@@ -100,6 +99,7 @@ md5Anim
      "numJoints" "int"  { 
         int i;
         anim->numJoints = $5;
+        anim->baseFrame = malloc( sizeof( md5Joint ) * $5 );
         for( i = 0; i < anim->numFrames; i++) {
          anim->frames[i].joints = malloc( sizeof( md5Joint ) * $5 );
         }
@@ -109,24 +109,19 @@ md5Anim
      }
      "numAnimatedComponents" "int" {
         jointFlags = malloc( sizeof( int ) * $11 );
-        jointStartIdx = malloc( sizeof( int ) * $11 );
-        frameIdx = 0;
-        baseFrameIdx = 0;
      }
      hierarchy bounds baseframe frame 
 
    ;       
 
 hierarchy
-   : "hierarchy" { 
-      frameIdx = 0;
-      jointIdx = 0;
-      } '{' hierarchySet '}' 
+   : "hierarchy" '{' hierarchySet '}' 
    ;  
 
 hierarchySet
    : hierarchySet {
-      jointIdx = 0;
+      frameIdx = 0;
+      baseFrameIdx = 0;
    } hierarchyValues
    | hierarchyValues 
    ;  
@@ -134,9 +129,8 @@ hierarchySet
 hierarchyValues
    : "string" "int" "int" "int" {
       free( $1 ); // Don't need it!
-      anim->frames[frameIdx++].joints[jointIdx].parent = $2; 
-      jointFlags[frameIdx] = $3;
-      jointStartIdx[frameIdx] = $4;
+      anim->baseFrame[baseFrameIdx++].parent = $2; 
+      jointFlags[frameIdx++] = $3;
    }
 
    ;
@@ -159,7 +153,9 @@ baseframe
    ;
 
 baseframeSet
-   : baseframeSet baseframeValues
+   : baseframeSet {
+        baseFrameIdx = 0;
+   } baseframeValues
    | baseframeValues
    ;
               
@@ -178,7 +174,7 @@ baseframeValues
            .x = $7,
            .y = $8,
            .z = $9,
-           .w = (( sq = ( $7 * $7 ) + ( $8 * $8 ) + ( $9 * $9 ) ) < 1.0f 
+           .w = (( sq = ( $7 * $7  +  $8 * $8  +  $9 * $9 )) < 1.0f 
                 ? -sqrt( 1.0f - sq ) : 0.0f ) 
           }
         }).vec
