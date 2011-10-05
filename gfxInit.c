@@ -23,24 +23,16 @@
 #include "libInclude.h"
 
 #include "gfxInit.h"
+#include "gfxConfig.h"
 
 /* These are presently very simple configurations. As the game matures and   *
  * more advanced configurations become necessary, this file will evolve.     */
 
 void gfxResizeScreen( GLuint width, GLuint height ) {
 
-   /* Aspect ratio of our screen. */
-   GLfloat ratio = (GLfloat)width / (GLfloat)height;
-
    /* Let OpenGL know we're working with a width by height context. */
    glViewport( 0, 0, (GLsizei)width, (GLsizei)height );
 
-   /* Set up our perspective calculations the way we want them. */
-   glMatrixMode( GL_PROJECTION );
-   glLoadIdentity();
-   gluPerspective( 45.0f, ratio, 0.01f, 100.0f );
-
-   glMatrixMode( GL_MODELVIEW );
 }
 
 void gfxInitializeOpenGL( void ) {
@@ -51,8 +43,7 @@ void gfxInitializeOpenGL( void ) {
    /* Set Depth clear value to 1.0f */
    glClearDepth( 1.0f );
 
-   /* Turn on depth testing. */
-   glEnable( GL_DEPTH_TEST );
+   // Specify how to perform depth testing.
    glDepthFunc( GL_LEQUAL );
 
 }
@@ -62,7 +53,10 @@ void gfxInitializeOpenGL( void ) {
 static SDL_Surface * gfxScreen;
 
 void gfxSetupOsWindow( GLuint width, GLuint height ) {
-   gfxScreen = SDL_SetVideoMode( width, height, 0, SDL_OPENGL | SDL_HWSURFACE );
+   gfxScreen = SDL_SetVideoMode( width, height, 0, SDL_OPENGL | SDL_HWSURFACE
+                                                 | ( gfxConfig.fullscreen
+                                                   ? SDL_FULLSCREEN
+                                                   : 0 ) );
    if ( !gfxScreen ) {
       fprintf( stderr, "Failed to do stuff1111!!!\n" );
    }

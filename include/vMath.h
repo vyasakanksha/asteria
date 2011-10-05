@@ -24,6 +24,10 @@
 
 #include "libInclude.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif // C++
+
 typedef GLfloat vec4 __attribute__(( vector_size ( sizeof( GLfloat ) * 4 ) ));
 typedef GLfloat vec3 __attribute__(( vector_size ( sizeof( GLfloat ) * 4 ) ));
 typedef GLfloat vec2 __attribute__(( vector_size ( sizeof( GLfloat ) * 4 ) ));
@@ -141,5 +145,9 @@ const char * v2Txt( vec2 v );
 const char * v3Txt( vec2 v );
 
 const char * v4Txt( vec2 v );
+
+#ifdef __cplusplus
+}
+#endif // C++
 
 #endif /* vMath.h */

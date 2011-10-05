@@ -30,35 +30,46 @@
 
 #include "libInclude.h"
 #include "gfxInit.h"
-#include "gfxShader.h"
-
-#include "vMath.h"
+#include "gfxTexture.h"
+#include "gfxModes.h"
+#include "gfxText.h"
+#include "gfxConfig.h"
+#include "gfxDebug.h"
 
 #include "md5Models.h"
 
 int main( int argc, char * argv[] ) { 
 
    int i;
-   long ticks;
-
-
-   GLuint vtx, frg, prog;
 
    double GL_Version;
 
-   FILE * md5File;
-   md5BaseMesh * model;
+   FILE * meshFile;
 
+   gfxLoadConfig();
    SDL_Init( SDL_INIT_EVERYTHING );
 
    SDL_Rect ** modes = SDL_ListModes( NULL, SDL_OPENGL );
+
+   if ( argc < 2 ) { 
+      char * n;
+      fprintf( stderr, "usage: %s [md5MeshFile]\n",
+                       ( ( n = strrchr( argv[0], '/' ) )
+                       ? n
+                       : argv[0] ) );
+      exit( 1 );
+   } else if ( ( meshFile = fopen( argv[1], "r" ) ) == NULL ) {
+      fprintf( stderr, "Could not open '%s': %s\n",
+                       argv[1], strerror( errno ) );
+      exit( 1 );
+   }
 
    if ( modes == NULL ) {
       fprintf( stderr, "No video modes available...\n" );
       exit( 1 );
    } else if ( modes == (SDL_Rect **)-1 ) {
       fprintf( stderr, "Video modes unrestricted\n" );
-      gfxSetupOsWindow( 1024, 768 );
+      gfxSetupOsWindow( gfxConfig.xRes, gfxConfig.yRes );
    } else {
       gfxSetupOsWindow( (*modes)->w, (*modes)->h );
       for ( ; *modes; ++modes ) {
@@ -87,143 +98,67 @@ int main( int argc, char * argv[] ) {
       exit( 1 );
    }
 
-   if ( argc == 2 ) {
-      if ( NULL == ( md5File = fopen( argv[1], "r" ) ) ) {
-         fprintf( stderr, "Error loading '%s': %s\n",
-                          argv[1], strerror( errno ) );
-         exit( 1 );
-      }
-   } else {
-      char * path;
-      fprintf( stderr, "usage: %s [*.md5mesh]\n",
-                       ( ( path = strrchr( argv[0], '/' ) )
-                       ? path
-                       : argv[0] ) );
-      exit( 1 );
-   }
-   fprintf( stderr, "Loading model... " );
-   ticks = SDL_GetTicks();
-   if ( NULL == ( model = md5LoadMesh( md5File ) ) ) {
-      fprintf( stderr, "Failed!\n" );
-      SDL_Quit();
-      exit( 1 );
-   }
-   fprintf( stderr, "%ldms elapsed.\n", SDL_GetTicks() - ticks );
+   md5InitSystem();
 
-   /* Makeshift lighting. */
-   GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-   GLfloat mat_shininess[] = { 50.0 };
-   GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
-   glClearColor (0.0, 0.0, 0.0, 0.0);
-   glShadeModel (GL_SMOOTH);
+   gfxInitBitMapFont();
 
-   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-   glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+   md5BaseMesh     * base = md5LoadMesh( meshFile );
+   md5BufferedMesh * mesh = md5BufferMesh( base );
 
-   glEnable(GL_LIGHTING);
-   glEnable(GL_LIGHT0);
+   SDL_Event event;
 
-   vtx  = gfxMakeShader( "shader/md5skel.vtx" );
-   frg  = gfxMakeShader( "shader/test.frg" );
-   prog = gfxMakeProgram( vtx, frg );
-   
-   glUseProgram( prog );
+   int keepGoing = 1;
 
-   //////////////////// MD5 SKELETON TEST CODE //////////////////////
+   for ( i = 0; keepGoing; ++i ) {
+      int j;
 
-   vec4 rot = qtMkRot( 70.0f, (vec3){ 1.0f, 0.0f, 0.0f, 0.0f } );
+      gfxRegisterFrame();
 
-   model->joints[2].orient = qtMul( model->joints[2].orient, rot );
-
-   for ( i = 0; i < model->numJoints; ++i ) {
-      char varName[128];
-      GLint loc;
-      snprintf( varName, 128, "jQuat[%d]", i );
-      loc = glGetUniformLocation( prog, varName );
-      glUniform4fv( loc, 4, (GLfloat * )&( model->joints[i].orient ) );
-      snprintf( varName, 128, "jPos[%d]", i );
-      loc = glGetUniformLocation( prog, varName );
-      glUniform3fv( loc, 3, (GLfloat * )&( model->joints[i].position ) );
-   }
-
-   GLuint wJoints, wBiases, wPositions, wNormals;
-
-   wJoints    = glGetAttribLocation( prog, "wJoints" );
-   wBiases    = glGetAttribLocation( prog, "wBiases" );
-   wPositions = glGetAttribLocation( prog, "wPositions" );
-   wNormals   = glGetAttribLocation( prog, "wNormals" );
-
-   glEnableVertexAttribArray( wJoints );
-   glEnableVertexAttribArray( wBiases );
-   glEnableVertexAttribArray( wPositions + 0 );
-   glEnableVertexAttribArray( wPositions + 1 );
-   glEnableVertexAttribArray( wPositions + 2 );
-   glEnableVertexAttribArray( wPositions + 3 );
-   glEnableVertexAttribArray( wNormals + 0 );
-   glEnableVertexAttribArray( wNormals + 1 );
-   glEnableVertexAttribArray( wNormals + 2 );
-   glEnableVertexAttribArray( wNormals + 3 );
-
-   md5BufferedMesh * bMesh = md5BufferMesh( model );
-
-   glVertexAttribPointer( wJoints, 4, GL_FLOAT, GL_FALSE,
-                          sizeof( GLfloat ) * 4, bMesh->jIndex );
-   glVertexAttribPointer( wBiases, 4, GL_FLOAT, GL_FALSE,
-                          sizeof( GLfloat ) * 4, bMesh->biases );
-   for ( i = 0; i < 4; ++i ) {
-      glVertexAttribPointer( wPositions + i, 4, GL_FLOAT, GL_FALSE,
-                             sizeof( vec3 ), bMesh->positions[i] );
-      glVertexAttribPointer( wNormals + i, 4, GL_FLOAT, GL_FALSE,
-                             sizeof( vec4 ), bMesh->normals[i] );
-   }
-
-   //////////////////// END  MD5 SKELETON TEST ///////////////////////
-
-   printf( "Attempting to render %d triangles.\n", model->numTris * 20 );
-   
-
-   ticks = SDL_GetTicks();
-
-   for ( i = 0; i < 3000; ++i ) {
-      int j, k;
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
       glLoadIdentity();
 
+      gfxEnter3DMode();
 
-      glTranslatef( 0.0f, 0.0f, -30.0f );
+      // md5 Drawing Code.
+      md5LoadState();
 
-      glRotatef( 90, 1.0f, 0.0f, 0.0f );
-
-      glRotatef( 0.5 * i, 0.0f, 1.0f, 0.0f );
-
-      glRotatef( 90, 1.0f, 0.0f, 1.0f );
-
-      glDrawElements( GL_TRIANGLES, model->numTris * 3,
-                      GL_UNSIGNED_INT, (GLvoid * )0 );
-
-
-      for ( k = 0; k < 20; ++k ) {
-         glPushMatrix();
-         glTranslatef( 0.0f, 1.0f * k, 0.0f );
-         for ( j = 0; j < 10; ++j ) {
-            glTranslatef( 0.5f, 0.0f, 0.0f );
-
-            glDrawElements( GL_TRIANGLES, model->numTris * 3,
-                            GL_UNSIGNED_INT, (GLvoid * )0 );
-         }
-         glPopMatrix();
+      for ( j = 0; j < base->numJoints; ++j ) {
+         md5SetJoint( j, base->joints[j].position, base->joints[j].orient );
       }
+
+      md5PrepareMesh( mesh );
+
+      glTranslatef( 0.0f, 0.0f, -4.0f );
+
+      glRotatef( 1.0f * i, 0.0f, 1.0f, 0.0f );
+
+      md5DrawMesh();
+
+      md5ExitState();
+
+      // Overlay drawing code.
+      gfxEnterOverlayMode();
+
+      gfxDrawDbgHUD();
 
       glFinish(); 
 
+      SDL_Delay( 20 );
+
       SDL_GL_SwapBuffers();
+
+      while ( SDL_PollEvent( &event ) ) {
+         switch( event.type ) {
+            case SDL_KEYDOWN:
+               if ( event.key.keysym.sym == SDLK_q ) {
+                  keepGoing = 0;
+               }
+            default:
+               break;
+         }
+      }
+
    }
-
-   fprintf( stderr, "Rendered at %d frames per second!\n", (int)( 3000.0f / (float)( ( SDL_GetTicks() - ticks ) / 1000 ) ) );
-
-   sleep( 1 );
 
    SDL_Quit();
 

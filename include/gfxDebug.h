@@ -18,10 +18,19 @@
  *                                                                          *
  ****************************************************************************/
 
-/* test.frg */
-varying vec3 normal; 
-void main() {
-   float intensity = dot( normalize( normal ),
-                          normalize( gl_LightSource[0].position.xyz ) );
-   gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
-}
+// gfxDebug.h
+#ifndef _GFX_DEBUG_H_
+#define _GFX_DEBUG_H_
+
+// Must be called once per frame in order for gfxGetFrameRate() to return
+// accurate results.
+void gfxRegisterFrame( void );
+
+// Get the current frame rate, based on a "sliding-window" average of the
+// duration of the last 50 frames. Relies on gfxRegisterFrame() being called
+// once per frame.
+float gfxGetFrameRate( void );
+
+void gfxDrawDbgHUD( void );
+
+#endif // gfxDebug.h

@@ -18,10 +18,24 @@
  *                                                                          *
  ****************************************************************************/
 
-/* test.frg */
-varying vec3 normal; 
-void main() {
-   float intensity = dot( normalize( normal ),
-                          normalize( gl_LightSource[0].position.xyz ) );
-   gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
-}
+// gfxConfig.h
+#ifndef _GFX_CONFIG_H_
+#define _GFX_CONFIG_H_
+
+#include "libInclude.h"
+
+// This is the structure that holds all graphics configuration information.
+// Right now it is kind of sparse, in the future we might add things such as
+// AA mode and renderer-specific settings ( LoD, etc ).
+typedef struct gfxConfigDat {
+   int xRes, yRes;  // Screen resolution
+   int fullscreen;  // Self explanatory, should we be in fullscreen mode?
+} gfxConfigDat;
+
+extern const char * gfxConfigFile;
+
+extern gfxConfigDat gfxConfig;
+
+void gfxLoadConfig( void );
+
+#endif // gfxConfig.h

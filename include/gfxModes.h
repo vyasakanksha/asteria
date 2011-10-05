@@ -18,10 +18,16 @@
  *                                                                          *
  ****************************************************************************/
 
-/* test.frg */
-varying vec3 normal; 
-void main() {
-   float intensity = dot( normalize( normal ),
-                          normalize( gl_LightSource[0].position.xyz ) );
-   gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
-}
+// gfxModes.h
+#ifndef _GFX_MODES_H_
+#define _GFX_MODES_H_
+
+// These functions are designed to be called once each per frame. First we
+// enter 3D Mode and draw the scene, then we enter Overlay Mode and draw
+// anything that isn't a part of the 3D world.
+
+void gfxEnter3DMode( void );
+
+void gfxEnterOverlayMode( void );
+
+#endif // gfxModes.h

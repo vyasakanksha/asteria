@@ -18,12 +18,13 @@
 #                                                                           #
 #############################################################################
 
-CC      = gcc
+CC      = clang
 CFLAGS  = -g -Wall -Werror -O2 -march=native -Iinclude
-LD      = gcc
-LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm
+LD      = clang
+LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm -ltiff
 
-MODULES = main gfxInit vMath md5Mesh.tab lex.md5Mesh md5Operations gfxShader
+MODULES = main gfxInit vMath md5Mesh.tab lex.md5Mesh md5Operations gfxShader \
+			 gfxTexture gfxText gfxModes gfxConfig gfxDebug
 
 OBJ = $(patsubst %,obj/%.o,$(MODULES))
 DEP = $(patsubst %,dep/%.M,$(MODULES))
@@ -48,7 +49,7 @@ endif
 # Build dependency files using gcc's '-M*' flags. The sed and awk scripts
 # modify the files to fit into our directory model.
 dep/%.M: %.c
-	@ $(CC) -MM -MG $< | sed 's#[^ ]\+\.h#include/&#g' \
+	@ gcc -MM -MG $< | sed 's#[^ ]\+\.h#include/&#g' \
 	                   | sed 's#[^ ]\+\.o#obj/&#g' \
 	                   > $@
 

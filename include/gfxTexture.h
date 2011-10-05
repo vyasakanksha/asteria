@@ -18,10 +18,20 @@
  *                                                                          *
  ****************************************************************************/
 
-/* test.frg */
-varying vec3 normal; 
-void main() {
-   float intensity = dot( normalize( normal ),
-                          normalize( gl_LightSource[0].position.xyz ) );
-   gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
+/* gfxTexture.h */
+#ifndef _GFX_TEXTURE_H_
+#define _GFX_TEXTURE_H_
+
+#include "libInclude.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif // C++
+
+GLint gfxTextureFromTiff( const char * path );
+
+#ifdef __cplusplus
 }
+#endif // C++
+
+#endif /* gfxTexture.h */

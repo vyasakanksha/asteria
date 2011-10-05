@@ -18,10 +18,38 @@
  *                                                                          *
  ****************************************************************************/
 
-/* test.frg */
-varying vec3 normal; 
-void main() {
-   float intensity = dot( normalize( normal ),
-                          normalize( gl_LightSource[0].position.xyz ) );
-   gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
+#include "libInclude.h"
+#include "gfxText.h"
+
+static long frameTime[50] = { [0 ... 49] = 0 };
+static unsigned int frameNbr = 0;
+
+void gfxRegisterFrame( void ) {
+
+   frameTime[frameNbr++] = SDL_GetTicks();
+   frameNbr %= 50;
+}
+
+float gfxGetFrameRate( void ) {
+   return  1000.0f / ( ( SDL_GetTicks() - frameTime[frameNbr] ) / 50.0f );
+}
+
+void gfxDrawDbgHUD( void ) {
+
+   float offset;
+
+   offset = gfxDrawDbgTextFmt( 0.01, 0.0, 0.02,  "GL Error:   " );
+
+   if ( glGetError() != GL_NO_ERROR ) {
+      glColor3f( 1, 0, 0 );
+   } else {
+      glColor3f( .6, .6, 1 );
+   }
+
+   gfxDrawDbgTextFmt( offset, 0.0, 0.02, "%s",
+                      gluErrorString( glGetError() ) );
+
+   glColor3f( .8, .8, .8 );
+   gfxDrawDbgTextFmt( 0.01, 0.02, 0.02, "%2.2f fps", gfxGetFrameRate() );
+
 }
