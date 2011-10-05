@@ -19,12 +19,12 @@
 #############################################################################
 
 CC      = clang
-CFLAGS  = -g -Wall -Werror -O2 -march=native -Iinclude
+CFLAGS  = -g -Wall -Werror -O1 -march=native -Iinclude
 LD      = clang
 LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm -ltiff
 
 MODULES = main gfxInit vMath md5Mesh.tab lex.md5Mesh md5Operations gfxShader \
-			 gfxTexture gfxText gfxModes gfxConfig gfxDebug
+			 gfxTexture gfxText gfxModes gfxConfig gfxDebug md5Anim.tab lex.md5Anim
 
 OBJ = $(patsubst %,obj/%.o,$(MODULES))
 DEP = $(patsubst %,dep/%.M,$(MODULES))
