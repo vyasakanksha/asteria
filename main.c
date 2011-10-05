@@ -37,14 +37,23 @@
 #include "gfxDebug.h"
 
 #include "md5Models.h"
+#include "md5Anim.h"
+
+int md5animparse( md5AnimData * );
 
 int main( int argc, char * argv[] ) { 
 
    int i;
 
+   md5AnimData robot;
+
    double GL_Version;
 
    FILE * meshFile;
+
+   md5animparse( &robot );
+
+   return 0;
 
    gfxLoadConfig();
    SDL_Init( SDL_INIT_EVERYTHING );
