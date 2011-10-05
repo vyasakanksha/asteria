@@ -24,12 +24,42 @@
 
 %{
    #include <stdio.h>
+   #include <math.h>
+   #include "md5Models.h"
 
    extern int md5animlex( void );
-   extern void md5animerror( const char * );
+   extern void md5animerror( void *, const char * );
 
-   extern int baseFrameIdx, framesidx;
-   extern int * jointFlags, * jointStartIdx;
+   static int baseFrameIdx, frameIdx, jointIdx, bit;
+   static int * jointFlags, * jointStartIdx;
+
+   static void assignJointBit( md5Joint * joint, int bit, float val )
+   {
+      vec3_u pos    = { .vec = joint->position };
+      vec4_u orient = { .vec = joint->orient   };
+      switch ( bit ) {
+         case 1: 
+            pos.x = val;
+            break;
+         case 2:
+            pos.y = val;
+            break;
+         case 4:
+            pos.z = val;
+            break;
+         case 8:
+            orient.x = val;
+            break;
+         case 16:
+            orient.y = val;
+            break;
+         case 32:
+            orient.z = val;
+            break;
+      }
+      joint->position = pos.vec;
+      joint->orient   = orient.vec;
+   }
 %}
 
 %token         ENDOFFILE         0  "EOF"
@@ -64,43 +94,47 @@
 
 md5Anim
    : "numFrames" "int"  {
-         anim->numframes = $2;
+         anim->numFrames = $2;
+         anim->frames = malloc( sizeof( md5AnimFrame ) * $2 );
      }
      "numJoints" "int"  { 
+        int i;
         anim->numJoints = $5;
+        for( i = 0; i < anim->numFrames; i++) {
+         anim->frames[i].joints = malloc( sizeof( md5Joint ) * $5 );
+        }
      }
      "frameRate" "int"  { 
         anim->frameDur = 1000/$8;
      }
      "numAnimatedComponents" "int" {
-        anim->frames = malloc( sizeof( md5Joint ) * $11 );
         jointFlags = malloc( sizeof( int ) * $11 );
         jointStartIdx = malloc( sizeof( int ) * $11 );
-        framesIdx = 0;
+        frameIdx = 0;
         baseFrameIdx = 0;
      }
-     hierarchy bounds 
-     { 
-        framesIdx = 0;
-     }
-     
-     baseframe frame 
+     hierarchy bounds baseframe frame 
 
    ;       
 
 hierarchy
-   : "hierarchy" '{' hierarchySet '}' 
+   : "hierarchy" { 
+      frameIdx = 0;
+      jointIdx = 0;
+      } '{' hierarchySet '}' 
    ;  
 
 hierarchySet
-   : hierarchySet hierarchyValues
+   : hierarchySet {
+      jointIdx = 0;
+   } hierarchyValues
    | hierarchyValues 
    ;  
               
 hierarchyValues
    : "string" "int" "int" "int" {
-      free( $1 ) // Don't need it!
-      anim->frames[framesIdx++].parent = $2; 
+      free( $1 ); // Don't need it!
+      anim->frames[frameIdx++].joints[jointIdx].parent = $2; 
       jointFlags[frameIdx] = $3;
       jointStartIdx[frameIdx] = $4;
    }
@@ -117,16 +151,7 @@ boundsSet
    ;          
            
 boundsValues
-   : '('"real" "real" "real"')' '('"real" "real" "real"')' {
-      /* deleting unnessasary memory */
-      free( $2 );
-      free( $3 );
-      free( $4 );
-      free( $7 );
-      free( $8 );
-      free( $9 );
-   }
-
+   : '('"real" "real" "real"')' '('"real" "real" "real"')' 
    ;
 
 baseframe
@@ -140,21 +165,23 @@ baseframeSet
               
 baseframeValues
    : '(' "real" "real" "real" ')' '(' "real" "real" "real" ')' {
-      anim->baseFrames[baseFrameIdx++] = (md5Joint){
-         .position = (vec3)((vec4_u)){ {
+      GLfloat sq;
+      anim->baseFrame[baseFrameIdx++] = (md5Joint){
+         .position = (vec3)((vec4_u){ {
             .x = $2,
             .y = $3,
             .z = $4,
             .w = 0.0f
            }
-        }.vec,
-        .orient = (vec4)((vect4_u)){ {
+        }).vec,
+        .orient = (vec4)((vec4_u){ {
            .x = $7,
            .y = $8,
            .z = $9,
-           .w = 0.0f
+           .w = (( sq = ( $7 * $7 ) + ( $8 * $8 ) + ( $9 * $9 ) ) < 1.0f 
+                ? -sqrt( 1.0f - sq ) : 0.0f ) 
           }
-        }.vec
+        }).vec
       };
    }
    ;
@@ -165,11 +192,23 @@ frame
    ;
        
 frameSet
-   : "frame" "int" '{' frameValues '}' 
+   : "frame" "int" { 
+      jointIdx = 0; bit = 1, frameIdx = $2; 
+   } '{' frameValues '}' 
    ;     
 
 frameValues
-   : frameValues "real" 
+   : frameValues "real" {
+      while (( bit & jointFlags[jointIdx] ) == 0 ) {
+         if( bit > 32 ) {
+            bit = 1;
+            jointIdx++;
+         }
+         assignJointBit( &anim->frames[frameIdx].joints[jointIdx], bit, 0.0f );
+         bit = bit << 1;
+      }
+      assignJointBit( &anim->frames[frameIdx].joints[jointIdx], bit, $2 );
+   }
    | /* epsilon */          
    ;
 
