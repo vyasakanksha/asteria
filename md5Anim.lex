@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include "md5Anim.h"
 
-int lineno = 1;  /* To keep track of the line number for debugging */
+static int lineno = 1;  /* To keep track of the line number for debugging */
 void md5animerror( const char * );
 %}
 

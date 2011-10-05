@@ -25,7 +25,7 @@
    #include "md5Mesh.h"
 
    void md5mesherror( void * , const char * );
-   int lineno = 1;
+   static int lineno = 1;
 %}
 
 %option noinput nounput
