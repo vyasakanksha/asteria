@@ -45,13 +45,13 @@ int main( int argc, char * argv[] ) {
 
    int i;
 
-   md5AnimData robot;
+   md5AnimData anim;
 
    double GL_Version;
 
    FILE * meshFile;
 
-   md5animparse( &robot );
+   md5animparse( &anim );
 
    return 0;
 
