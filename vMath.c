@@ -115,6 +115,12 @@ vec4 qtMul( vec4 a, vec4 b ) {
    return res.vec;
 }
 
+vec4 qtScalerMult( vec4 a, GLfloat b ) {
+   vec4_u ax = { .vec = a };
+   
+   return (vec4){ ax.x * b, ax.y * b, ax.z * b, ax.w * b };
+
+}
 vec4 qtSLERP( vec4 a, vec4 b, GLfloat t ) {
    int theta, x, y; 
 
