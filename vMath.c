@@ -115,35 +115,26 @@ vec4 qtMul( vec4 a, vec4 b ) {
    return res.vec;
 }
 
-vec4 qtScalerMult( vec4 a, GLfloat b ) {
-   vec4_u ax = { .vec = a };
-   
-   return (vec4){ ax.x * b, ax.y * b, ax.z * b, ax.w * b };
-
-}
-
 vec4 qtLERP( vec4 a, vec4 b, GLfloat t ) {
    vec4 x, y;
    
-   x = qtScalerMult( a, 1.0f - t );
-   y = qtScalerMult( b , t );
+   x = v4Scale( 1.0f - t, a );
+   y = v4Scale( t, b );
 
    return x + y;
 }
 
 vec4 qtSLERP( vec4 a, vec4 b, GLfloat t ) {
+// account for cases where sin( theta ) small
+// Look into different implementations / optimizations
+
    int theta;
    vec4 x, y;
 
    theta = acos( v4Dot( a, b ));
 
-   /*if( sin( theta ) > 0.001f ) {
-      qtNLEPR( a, b, t );
-   } else {*/
-
-      x = qtScalerMult( a, sin(( 1 - t ) * theta ) / sin( theta ));
-      y = qtScalerMult( b, sin( t * theta ) / sin( theta ));
-   //}
+   x = v4Scale( sin(( 1 - t ) * theta ) / sin( theta ), a);
+   y = v4Scale( sin( t * theta ) / sin( theta ), b);
 
    return x + y;
 }
