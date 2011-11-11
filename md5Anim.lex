@@ -51,6 +51,8 @@ frame                      { return TOK_FRAME;                             }
                                      return TOK_ZNUM;                      }
 \"[^\n\"]*\"               { md5animlval.sVal = strdup( yytext ); 
                                                 return TOK_STRING;         }
+
+[\r\t ]                    { ; }
 %%
 
 /* I have no idea what this does, but without this function, everything breaks */
