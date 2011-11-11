@@ -19,7 +19,7 @@
 #############################################################################
 
 CC      = clang
-CFLAGS  = -g -Wall -Werror -O1 -march=native -Iinclude
+CFLAGS  = -g -Wall -Werror -O0 -march=native -Iinclude
 LD      = clang
 LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm -ltiff
 
