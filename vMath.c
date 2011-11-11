@@ -122,13 +122,14 @@ vec4 qtScalerMult( vec4 a, GLfloat b ) {
 
 }
 vec4 qtSLERP( vec4 a, vec4 b, GLfloat t ) {
-   int theta, x, y; 
+   int theta;
+   vec4 x, y;
 
    theta = acos( v4Dot( a, b ));
-   x = sin(( 1 - t ) * theta ) / sin( theta );
-   y = sin( t * theta ) / sin( theta );
+   x = qtScalerMult( a, sin(( 1 - t ) * theta ) / sin( theta ));
+   y = qtScalerMult( b, sin( t * theta ) / sin( theta ));
 
-   return a + b;
+   return x + y;
 }
 
 const char * v2Txt( vec2 v ) {
