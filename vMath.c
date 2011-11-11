@@ -116,9 +116,13 @@ vec4 qtMul( vec4 a, vec4 b ) {
 }
 
 vec4 qtSLERP( vec4 a, vec4 b, GLfloat t ) {
-   // Important! cos(theta/2) = v4Dot( a, b )
-   // http://embots.dfki.de/doc/seminar_ca/Kremer_Quaternions.pdf
-   return (vec4){ 0.0f, 0.0f, 0.0f, 0.0f };
+   int theta, x, y; 
+
+   theta = acos( v4Dot( a, b ));
+   x = sin(( 1 - t ) * theta ) / sin( theta );
+   y = sin( t * theta ) / sin( theta );
+
+   return a + b;
 }
 
 const char * v2Txt( vec2 v ) {
