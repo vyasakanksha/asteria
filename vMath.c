@@ -136,8 +136,14 @@ vec4 qtSLERP( vec4 a, vec4 b, GLfloat t ) {
    vec4 x, y;
 
    theta = acos( v4Dot( a, b ));
-   x = qtScalerMult( a, sin(( 1 - t ) * theta ) / sin( theta ));
-   y = qtScalerMult( b, sin( t * theta ) / sin( theta ));
+
+   /*if( sin( theta ) > 0.001f ) {
+      qtNLEPR( a, b, t );
+   } else {*/
+
+      x = qtScalerMult( a, sin(( 1 - t ) * theta ) / sin( theta ));
+      y = qtScalerMult( b, sin( t * theta ) / sin( theta ));
+   //}
 
    return x + y;
 }
