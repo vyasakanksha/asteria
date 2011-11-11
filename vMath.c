@@ -121,6 +121,16 @@ vec4 qtScalerMult( vec4 a, GLfloat b ) {
    return (vec4){ ax.x * b, ax.y * b, ax.z * b, ax.w * b };
 
 }
+
+vec4 qtLERP( vec4 a, vec4 b, GLfloat t ) {
+   vec4 x, y;
+   
+   x = qtScalerMult( a, 1.0f - t );
+   y = qtScalerMult( b , t );
+
+   return x + y;
+}
+
 vec4 qtSLERP( vec4 a, vec4 b, GLfloat t ) {
    int theta;
    vec4 x, y;
@@ -130,6 +140,10 @@ vec4 qtSLERP( vec4 a, vec4 b, GLfloat t ) {
    y = qtScalerMult( b, sin( t * theta ) / sin( theta ));
 
    return x + y;
+}
+
+vec4 qtNLERP( vec4 a, vec4 b , GLfloat t ) {
+   return v4Normalize( qtLERP( a, b, t ));
 }
 
 const char * v2Txt( vec2 v ) {
