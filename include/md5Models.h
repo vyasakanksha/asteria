@@ -144,7 +144,7 @@ typedef struct md5AnimData {
    int numFrames; // The number of frames in the model's animations.
 
    md5AnimFrame * frames; // A list of all frames.
-} md5Animation;
+} md5AnimData;
 
 
 md5BaseMesh * md5LoadMesh( FILE * fp );
