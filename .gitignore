@@ -2,4 +2,6 @@
 game
 md5Mesh.tab.c
 lex.md5Mesh.c
+md5Anim.tab.c
+lex.md5Anim.c
 md5Mesh

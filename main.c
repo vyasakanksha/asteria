@@ -45,15 +45,9 @@ int main( int argc, char * argv[] ) {
 
    int i;
 
-   md5AnimData anim;
-
    double GL_Version;
 
    FILE * meshFile;
-
-   md5animparse( &anim );
-
-   return 0;
 
    gfxLoadConfig();
    SDL_Init( SDL_INIT_EVERYTHING );
