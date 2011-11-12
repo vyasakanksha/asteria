@@ -39,6 +39,7 @@ typedef GLfloat vec2 __attribute__(( vector_size ( sizeof( GLfloat ) * 4 ) ));
  * sure that you understand the GCC vector extensions and know what you are  *
  * doing.                                                                    */
 
+// Union that represents a 2D vector.
 typedef union vec2_u {
 
    struct {
@@ -51,6 +52,7 @@ typedef union vec2_u {
 
 } vec2_u;
 
+// Union type for 3D vector. BE WARNED: This is just a 4D vector in disguise!
 typedef union vec3_u {
 
    struct {
@@ -65,6 +67,7 @@ typedef union vec3_u {
 
 } vec3_u;
 
+// Union type for 4D vector.
 typedef union vec4_u {
 
    struct {
@@ -82,64 +85,84 @@ typedef union vec4_u {
 } vec4_u;
 
 
+// Returns the cross product of two 3D vectors.
 __attribute__ ((pure))
 vec3 v3Cross( vec3 a, vec3 b );
 
 
+// Returns the dot product of two 2D vectors.
 __attribute__ ((pure))
 GLfloat v2Dot( vec2 a, vec2 b );
 
+// Returns the dot product of two 3D vectors.
 __attribute__ ((pure))
 GLfloat v3Dot( vec3 a, vec3 b );
 
+// Returns the dot product of two 4D vectors.
 __attribute__ ((pure))
 GLfloat v4Dot( vec4 a, vec4 b );
 
-
+// Returns the result of multiplying the scalar 's' by the vector 'v'.
 __attribute__ ((pure))
 static inline vec2 v2Scale( GLfloat s, vec2 v ) {
    return v * (vec2){ s, s, 1.0f, 1.0f };
 }
 
+// Returns the result of multiplying the scalar 's' by the vector 'v'.
 __attribute__ ((pure))
 static inline vec3 v3Scale( GLfloat s, vec3 v ) {
    return v * (vec3){ s, s, s, 1.0f };
 }
 
+// Returns the result of multiplying the scalar 's' by the vector 'v'.
 __attribute__ ((pure))
 static inline vec4 v4Scale( GLfloat s, vec4 v ) {
    return v * (vec4){ s, s, s, s };
 }
 
-
+// Returns a vector with magnitude 1, pointing in the same direction as 'op'.
 __attribute__ ((pure))
 vec2 v2Normalize( vec2 op );
 
+// Returns a vector with magnitude 1, pointing in the same direction as 'op'.
 __attribute__ ((pure))
 vec3 v3Normalize( vec3 op );
 
+// Returns a vector with magnitude 1, pointing in the same direction as 'op'.
 __attribute__ ((pure))
 vec4 v4Normalize( vec4 op );
 
-
+// Returns 'v' rotated by the quaternion 'q'.
 __attribute__ ((pure))
 vec3 qtRotate( vec4 q, vec3 v );
 
-/* WARNING: Only works on unit quaternions. */
+// Returns the conjugate of the quaternion 'op'.
+// WARNING: Only works on unit quaternions.
 __attribute__ ((pure))
 vec4 qtConjugate( vec4 op );
 
+// Returns a quaternion that describes a rotation by 'th' degrees around the
+// vector 'axis'
 __attribute__ ((pure))
 vec4 qtMkRot( GLfloat th, vec3 axis );
 
+// 'a' and 'b' are quaternions. Returns the quaternion product ab.
 __attribute__ ((pure))
 vec4 qtMul( vec4 a, vec4 b );
 
+// Returns a Spherical Linear intERPolation of the two quaternions.
 __attribute__ ((pure))
-vec4 qtSlerp( vec4 a, vec4 b, GLfloat t );
+vec4 qtSLERP( vec4 a, vec4 b, GLfloat t );
+
+// Returns a Linear intERPolation of the two quaternions.
+vec4 qtLERP( vec4 a, vec4 b, GLfloat t );
+
+// Returns a Normalized Linear intERPolation of the two quaternions.
+vec4 qtNLERP( vec4 a, vec4 b , GLfloat t );
 
 
-/* output only valid up until next call. */
+// FIXME: These are HORRENDOUS memory leakers! They are just here for
+// debugging and should _NEVER_ be used in real code.
 const char * v2Txt( vec2 v );
 
 const char * v3Txt( vec2 v );

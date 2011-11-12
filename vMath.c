@@ -133,7 +133,7 @@ vec4 qtSLERP( vec4 a, vec4 b, GLfloat t ) {
 
    theta = acos( v4Dot( a, b ));
 
-   x = v4Scale( sin(( 1 - t ) * theta ) / sin( theta ), a);
+   x = v4Scale( sin( ( 1 - t ) * theta ) / sin( theta ), a);
    y = v4Scale( sin( t * theta ) / sin( theta ), b);
 
    return x + y;
