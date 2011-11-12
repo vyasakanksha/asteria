@@ -18,10 +18,41 @@
  *                                                                          *
  ****************************************************************************/
 
-/* test.frg */
-varying vec3 normal; 
+/* md5skel.vtx */
+uniform vec4 jQuat[64];
+
+uniform vec3 jPos[64];
+
+attribute vec4  wJoints;
+attribute vec4  wBiases;
+attribute mat4  wPositions;
+attribute mat4  wNormals;
+
+varying vec3 normal;
+
+vec3 qtRotate( vec4 q, vec3 v ) {
+   float Dot   = -dot( q.xyz, v );
+   vec3  conj  = -1.0 * q.xyz;
+   vec3 intVec = ( q.w * v ) + cross( q.xyz, v );
+
+   return ( q.w * intVec ) + ( Dot * conj ) + cross( intVec, conj );
+}
+
 void main() {
-   float intensity = dot( normalize( normal ),
-                          normalize( gl_LightSource[0].position.xyz ) );
-   gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
+   vec3 pos = vec3( 0, 0, 0 );
+   vec3 norm = vec3( 0, 0, 0);
+   for ( int i = 0; i < 4; ++i ) {
+      int jIdx = int( wJoints[i] );
+      if ( jIdx != -1 ) {
+         pos  += ( jPos[jIdx]
+                   + qtRotate( jQuat[jIdx], wPositions[i].xyz ) ) * wBiases[i];
+         norm += qtRotate( jQuat[jIdx], wNormals[i].xyz ) * wBiases[i];
+      } else {
+         break;
+      }
+   }
+
+   normal = gl_NormalMatrix * norm;
+
+   gl_Position = gl_ModelViewProjectionMatrix * vec4( pos, 1 );
 }

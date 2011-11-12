@@ -18,12 +18,14 @@
 #                                                                           #
 #############################################################################
 
-CC      = gcc
-CFLAGS  = -g -Wall -Werror -O2 -march=native -Iinclude
-LD      = gcc
-LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm
+CC      = clang
+CFLAGS  = -g -Wall -Werror -O0 -march=native -Iinclude
+LD      = clang
+LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm -ltiff
 
-MODULES = main gfxInit vMath md5Mesh.tab lex.md5Mesh md5Calculations gfxShader
+MODULES = main gfxInit vMath md5Mesh.tab lex.md5Mesh md5Operations gfxShader \
+			 gfxTexture gfxText gfxModes gfxConfig gfxDebug md5Anim.tab         \
+			 lex.md5Anim
 
 OBJ = $(patsubst %,obj/%.o,$(MODULES))
 DEP = $(patsubst %,dep/%.M,$(MODULES))
@@ -48,7 +50,7 @@ endif
 # Build dependency files using gcc's '-M*' flags. The sed and awk scripts
 # modify the files to fit into our directory model.
 dep/%.M: %.c
-	@ $(CC) -MM -MG $< | sed 's#[^ ]\+\.h#include/&#g' \
+	@ gcc -MM -MG $< | sed 's#[^ ]\+\.h#include/&#g' \
 	                   | sed 's#[^ ]\+\.o#obj/&#g' \
 	                   > $@
 
@@ -75,6 +77,22 @@ lex.md5Mesh.c: md5Mesh.lex
 	@ flex -P md5mesh --yylineno -o $@ $<
 
 CLEANFILES += lex.md5Mesh.c md5Mesh.tab.c include/md5Mesh.h md5Mesh
+
+md5Anim: obj/md5Anim.tab.o obj/lex.md5Anim.o obj/md5AnimTest.o
+	@ echo "  [LD]       $@"
+	@ $(LD) $(LDFLAGS) $^ -o $@
+
+include/md5Anim.h: md5Anim.tab.c
+
+md5Anim.tab.c: md5Anim.y
+	@ echo "  [BISON]    $@"
+	@ bison -p md5anim -b md5Anim --defines=include/md5Anim.h -o $@ $<
+
+lex.md5Anim.c: md5Anim.lex
+	@ echo "  [LEX]      $@"
+	@ flex -P md5anim --yylineno -o $@ $<
+
+CLEANFILES += lex.md5Anim.c md5Anim.tab.c include/md5Anim.h md5Anim
 
 ########################## End Lex/Yacc Rules ###############################
 

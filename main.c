@@ -20,7 +20,9 @@
 
 /* main.c */
 #include <stdio.h>
-#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
 #include <unistd.h> /* For sleep(). */
 
@@ -28,84 +30,138 @@
 
 #include "libInclude.h"
 #include "gfxInit.h"
-#include "gfxShader.h"
-
-#include "vMath.h"
+#include "gfxTexture.h"
+#include "gfxModes.h"
+#include "gfxText.h"
+#include "gfxConfig.h"
+#include "gfxDebug.h"
 
 #include "md5Models.h"
+#include "md5Anim.h"
+
+int md5animparse( md5AnimData * );
 
 int main( int argc, char * argv[] ) { 
 
    int i;
 
-   md5SimpleBindPose * model;
+   double GL_Version;
 
-   GLuint frg, vtx, prog;
+   FILE * meshFile;
 
+   gfxLoadConfig();
+   SDL_Init( SDL_INIT_EVERYTHING );
 
-   if ( NULL == ( model = md5GetSimpleBindPose( "robot" ) ) ) {
-      fprintf( stderr, "Failure to load test model...\n" );
+   SDL_Rect ** modes = SDL_ListModes( NULL, SDL_OPENGL );
+
+   if ( argc < 2 ) { 
+      char * n;
+      fprintf( stderr, "usage: %s [md5MeshFile]\n",
+                       ( ( n = strrchr( argv[0], '/' ) )
+                       ? n
+                       : argv[0] ) );
+      exit( 1 );
+   } else if ( ( meshFile = fopen( argv[1], "r" ) ) == NULL ) {
+      fprintf( stderr, "Could not open '%s': %s\n",
+                       argv[1], strerror( errno ) );
       exit( 1 );
    }
 
-   SDL_Init( SDL_INIT_EVERYTHING );
+   if ( modes == NULL ) {
+      fprintf( stderr, "No video modes available...\n" );
+      exit( 1 );
+   } else if ( modes == (SDL_Rect **)-1 ) {
+      fprintf( stderr, "Video modes unrestricted\n" );
+      gfxSetupOsWindow( gfxConfig.xRes, gfxConfig.yRes );
+   } else {
+      gfxSetupOsWindow( (*modes)->w, (*modes)->h );
+      for ( ; *modes; ++modes ) {
+         fprintf( stderr, "width: %d, height: %d\n", (*modes)->w, (*modes)->h );
+      }
+   }
 
-   SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, 1 );
-   SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 4 );
-
-   gfxSetupOsWindow( 1600, 900 );
    gfxInitializeOpenGL();
+
+   GL_Version = strtod( (char *)glGetString( GL_VERSION ), NULL );
+   if ( GL_Version < 2.1f ) {
+      fprintf( stderr, 
+      "OpenGL Version must be at least 2.1, but you appear to be running\n"
+      "OpenGL %2.1f. Be sure that your hardware supports OpenGL 2.1, and\n"
+      "that you have the most up-to-date drivers for your graphics hardware.\n",
+      GL_Version );
+      SDL_Quit();
+      exit( 1 );
+   } else {
+      printf( "Detected OpenGL Version %2.1f, Have Fun!\n", GL_Version );
+   }
 
    if ( GLEW_OK != glewInit() ) {
       fprintf( stderr, "GLEW Failed to initialize.\n" );
+      SDL_Quit();
       exit( 1 );
    }
 
+   md5InitSystem();
 
-   /* Makeshift lighting. */
-   GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-   GLfloat mat_shininess[] = { 50.0 };
-   GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
-   glClearColor (0.0, 0.0, 0.0, 0.0);
-   glShadeModel (GL_SMOOTH);
+   gfxInitBitMapFont();
 
-   vtx  = gfxLoadShader( "shader/test.vtx" );
-   frg  = gfxLoadShader( "shader/test.frg" );
-   prog = gfxMakeShaderProgram( vtx, frg );
-   fprintf( stderr, "vtx:  %d\nfrg:  %d\nprog: %d\n", vtx, frg, prog );
+   md5BaseMesh     * base = md5LoadMesh( meshFile );
+   md5BufferedMesh * mesh = md5BufferMesh( base );
 
-   glUseProgram( prog );
+   SDL_Event event;
 
+   int keepGoing = 1;
 
-   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-   glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+   for ( i = 0; keepGoing; ++i ) {
+      int j;
 
-   glEnable(GL_LIGHTING);
-   glEnable(GL_LIGHT0);
+      gfxRegisterFrame();
 
-   glEnableClientState( GL_VERTEX_ARRAY );
-   glEnableClientState( GL_NORMAL_ARRAY );
-
-   glVertexPointer( 3, GL_FLOAT, sizeof( vec4 ), model->verts );
-   glNormalPointer( GL_FLOAT, sizeof( vec3 ), model->norms );
-
-   for ( i = 0; i < 200; ++i ) {
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
       glLoadIdentity();
-      glTranslatef( 0.0f, -0.5f, -3.0f );
-      glRotatef( 30.0f, 1.0f, 0.0f, 0.0f );
-      glRotatef( 3.0f * i, 0.0f, 1.0f, 0.0f );
-      glDrawElements( GL_TRIANGLES, model->numIdx, GL_UNSIGNED_INT, model->idxs );
+
+      gfxEnter3DMode();
+
+      // md5 Drawing Code.
+      md5LoadState();
+
+      for ( j = 0; j < base->numJoints; ++j ) {
+         md5SetJoint( j, base->joints[j].position, base->joints[j].orient );
+      }
+
+      md5PrepareMesh( mesh );
+
+      glTranslatef( 0.0f, 0.0f, -4.0f );
+
+      glRotatef( 1.0f * i, 0.0f, 1.0f, 0.0f );
+
+      md5DrawMesh();
+
+      md5ExitState();
+
+      // Overlay drawing code.
+      gfxEnterOverlayMode();
+
+      gfxDrawDbgHUD();
 
       glFinish(); 
 
-      SDL_GL_SwapBuffers();
-      SDL_Delay( 25 );
-   }
+      SDL_Delay( 20 );
 
-   sleep( 1 );
+      SDL_GL_SwapBuffers();
+
+      while ( SDL_PollEvent( &event ) ) {
+         switch( event.type ) {
+            case SDL_KEYDOWN:
+               if ( event.key.keysym.sym == SDLK_q ) {
+                  keepGoing = 0;
+               }
+            default:
+               break;
+         }
+      }
+
+   }
 
    SDL_Quit();
 

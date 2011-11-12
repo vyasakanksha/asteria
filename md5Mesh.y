@@ -98,17 +98,17 @@ Joint
    : "string" "int" '(' "float" "float" "float" ')'
                     '(' "float" "float" "float" ')' {
          GLfloat sq;
+         free( $1 ); // Hoorray for unnecessary memory fragmentation!
          mdl->joints[jointIdx++] = (md5Joint){
-            .name       = $1,
             .parent     = $2,
-            .position   = { { 
+            .position   = (vec3)((vec4_u){ { 
                   .x = $4,
                   .y = $5,
                   .z = $6,
                   .w = 0.0f
                }
-            },
-            .orientation = { {
+            }).vec,
+            .orient = (vec4)((vec4_u){ {
                   .x = $9,
                   .y = $10,
                   .z = $11,
@@ -116,7 +116,7 @@ Joint
                        ? -sqrt( 1.0f - sq )
                        : 0.0f ) /* If this is the case, something's weird. */
                }
-            }
+            }).vec
          };
       }
    ;
@@ -194,13 +194,13 @@ Weight
       mdl->meshes[meshIdx].weights[$2] = (md5Weight){
          .joint      = $3,
          .weight     = $4,
-         .position   = { {
+         .position   = (vec3)((vec4_u){ {
                .x = $6,
                .y = $7,
                .z = $8,
                .w = 0.0f
             }
-         }
+         }).xyz
       }
    }
 

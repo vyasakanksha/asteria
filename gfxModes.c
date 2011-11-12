@@ -18,10 +18,36 @@
  *                                                                          *
  ****************************************************************************/
 
-/* test.frg */
-varying vec3 normal; 
-void main() {
-   float intensity = dot( normalize( normal ),
-                          normalize( gl_LightSource[0].position.xyz ) );
-   gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
+#include "gfxModes.h"
+#include "gfxConfig.h"
+
+// Call this before doing anything in the 3D world.
+void gfxEnter3DMode( void ) {
+   // Aspect ratio
+   GLfloat ratio = (GLfloat)gfxConfig.xRes / (GLfloat)gfxConfig.yRes;
+
+   // Prepare a perspective projection.
+   glMatrixMode( GL_PROJECTION );
+   glLoadIdentity();
+   gluPerspective( 45.0f, ratio, 0.01f, 100.0f );
+
+   glMatrixMode( GL_MODELVIEW );
+
+   // Turn on depth testing.
+   glEnable( GL_DEPTH_TEST );
+
+   glDisable( GL_BLEND );
+}
+
+// Call this before drawing any part of the overlay.
+void gfxEnterOverlayMode( void ) {
+   glMatrixMode( GL_PROJECTION );
+   glLoadIdentity();
+
+   glOrtho( 0, 1, 0, 1, -1, 1 );
+
+   glMatrixMode( GL_MODELVIEW );
+   glLoadIdentity();
+
+   glUseProgram( 0 );
 }

@@ -18,38 +18,20 @@
  *                                                                          *
  ****************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
+/* gfxTexture.h */
+#ifndef _GFX_TEXTURE_H_
+#define _GFX_TEXTURE_H_
 
-#include "md5Models.h"
+#include "libInclude.h"
 
-extern int md5meshparse( md5MeshData * );
-extern void md5meshset_in( FILE * );
+#ifdef __cplusplus
+extern "C" {
+#endif // C++
 
-int main( int argc, char * argv[] ) {
-   char * n;
-   FILE * md5;
+GLint gfxTextureFromTiff( const char * path );
 
-   md5MeshData mesh;
-
-   if ( 2 != argc ) {
-      fprintf( stderr, "usage: %s [*.md5mesh]\n",
-                       ( ( n = strrchr( argv[0], '/' ) ) ? n : argv[0] ) );
-      exit( 1 );
-   } else if ( NULL == ( md5 = fopen( argv[1], "r" ) ) ) {
-      fprintf( stderr, "failed to open %s: %s\n", argv[1], strerror( errno ) );
-      exit( 1 );
-   }
-   md5meshset_in( md5 );
-
-   if ( 0 == md5meshparse( &mesh ) ) {
-      fprintf( stderr, "md5Mesh: Successful Parse!\n" );
-   } else {
-      fprintf( stderr, "md5Mesh: Failed to Parse!\n" );
-      exit( 1 );
-   }
-
-   return 0;
+#ifdef __cplusplus
 }
+#endif // C++
+
+#endif /* gfxTexture.h */

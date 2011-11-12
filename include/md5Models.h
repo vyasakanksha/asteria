@@ -25,12 +25,14 @@
 #include "vMath.h"
 #include "libInclude.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif // C++
 
 typedef struct md5Joint {
-   char      * name;
    int         parent;
-   vec4        position,
-               orientation;
+   vec3        position;
+   vec4        orient;
 } md5Joint;
 
 
@@ -50,7 +52,7 @@ typedef struct md5Tri {
 typedef struct md5Weight {
    int         joint;
    GLfloat     weight;
-   vec4        position;
+   vec3        position;
 } md5Weight;
 
 typedef struct md5Mesh {
@@ -75,15 +77,97 @@ typedef struct md5MeshData {
 } md5MeshData;
 
 
-typedef struct md5SimpleBindPose {
-   int      numVerts;
-   vec4   * verts;
-   vec3   * norms;
+// The md5BaseMesh structure defines everything needed to render the mesh
+// with its bind-pose skeleton. All that needs to be changed to animate it
+// is the position of the bones.
+typedef struct md5BaseMesh {
+   int numVerts; // The number of vertices making up the model.
 
-   int      numIdx;
-   GLuint * idxs;
-} md5SimpleBindPose;
+   // Parens are to make these pointers to arrays of four elements each.
+   GLfloat  (* jIndex)[4]; // The index of the joint associated with each of
+                           // the weights associated with the given vertex.
 
-md5SimpleBindPose * md5GetSimpleBindPose( const char * meshName );
+   GLfloat  (* biases)[4]; // The bias of each weight. In order for correct
+                           // behaviour, these should add up to one.
+
+   // The parens here make them arrays of four pointers, instead of
+   // pointers to arrays of four.
+   vec3    * (positions[4]); // The offset of each of the ( up to ) four 
+                             // weights associated with the given vertex.
+
+   vec3    * (normals[4]);   // The normals of each of these weights in
+                             // joint space.
+
+   int numTris;      // The number of triangles in the mesh.
+
+   GLuint * indices; // The indices of the vertices to be drawn, as per
+                     // OpenGL vertex arrays.
+
+   int numJoints;     // The number of joints in the skeleton.
+
+   md5Joint * joints; // Data for each of the skeleton's joints.
+} md5BaseMesh;
+
+// If the mesh is stored in a buffer object, this special structure gives
+// the names for the buffer objects ( vertex/index ), and the special pointers
+// for use as vertex array offsets into the buffer
+typedef struct md5BufferedMesh {
+   GLuint vBuf, // OpenGL name for Vertex Buffer Object
+          iBuf; // OpenGL name for Index Buffer Object
+
+   GLvoid * jIndex,
+          * biases,
+          * positions[4],
+          * normals[4];
+
+   GLuint nIdx; // Number of indices
+} md5BufferedMesh;
+
+// Each frame is just an array of joints, each corresponding to a joint in the
+// animated mesh.
+typedef struct md5AnimFrame {
+   md5Joint * joints;
+} md5AnimFrame;
+
+// This structure provides all of the information necessary to determine bone
+// positions for a model at a given time.
+typedef struct md5AnimData {
+   float frameDur; // The number of milliseconds per frame.
+
+   int numJoints;  // The number of joints in the model.
+
+   md5Joint * baseFrame; // Joints in their base-frame position.
+
+   GLuint * uPosition; // The glUniform indices for the joints' positions.
+   GLuint * uOrient; // The glUniform indices for the joints' orientations.
+
+   int numFrames; // The number of frames in the model's animations.
+
+   md5AnimFrame * frames; // A list of all frames.
+} md5AnimData;
+
+
+md5BaseMesh * md5LoadMesh( FILE * fp );
+
+md5BufferedMesh * md5BufferMesh( md5BaseMesh * mesh );
+
+// Prepare to render a mesh.
+void md5PrepareMesh( md5BufferedMesh * bMesh );
+
+// Draws the currently active mesh.
+void md5DrawMesh( void );
+
+// Load the proper shaders and other GL state to start rendering md5 models.
+void md5LoadState( void );
+
+void md5ExitState( void );
+
+// Set up all of the state for the md5 shaders. Compile shaders, etc...
+void md5InitSystem( void );
+
+void md5SetJoint( int i, vec3 pos, vec4 rot );
+#ifdef __cplusplus
+}
+#endif // C++
 
 #endif /* md5Models.h */

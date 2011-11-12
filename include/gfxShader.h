@@ -22,8 +22,18 @@
 #ifndef _GFX_SHADER_H_
 #define _GFX_SHADER_H_
 
-GLuint gfxLoadShader( const char * shader );
+#include "libInclude.h"
 
-GLuint gfxMakeShaderProgram( GLuint vtx, GLuint frg );
+#ifdef __cplusplus
+extern "C" {
+#endif // C++
+
+GLuint gfxMakeShader( const char * fName );
+
+GLuint gfxMakeProgram( GLuint vtx, GLuint frg );
+
+#ifdef __cplusplus
+}
+#endif // C++
 
 #endif /* gfxShader.h */

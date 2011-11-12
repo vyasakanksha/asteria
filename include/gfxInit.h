@@ -24,6 +24,10 @@
 
 #include "libInclude.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif // C++
+
 /* Resize the screen to be width by height pixels in size. */
 void gfxResizeScreen( GLuint width, GLuint height );
 
@@ -33,5 +37,9 @@ void gfxInitializeOpenGL( void );
 
 /* Set up a window with the Operating System/Window Manager. */
 void gfxSetupOsWindow( GLuint width, GLuint height );
+
+#ifdef __cplusplus
+}
+#endif // C++
 
 #endif /* gfxInit.h */

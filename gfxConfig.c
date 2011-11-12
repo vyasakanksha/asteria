@@ -18,10 +18,16 @@
  *                                                                          *
  ****************************************************************************/
 
-/* test.frg */
-varying vec3 normal; 
-void main() {
-   float intensity = dot( normalize( normal ),
-                          normalize( gl_LightSource[0].position.xyz ) );
-   gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
+#include "gfxConfig.h"
+
+const char * gfxConfigFile = "render.conf";
+
+gfxConfigDat gfxConfig;
+
+// In the future, we will dynamically load this data from a configuration
+// file, but right now we're just using a static setup.
+void gfxLoadConfig( void ) {
+  gfxConfig.xRes = 1024;
+  gfxConfig.yRes = 768;
+  gfxConfig.fullscreen = 0;
 }

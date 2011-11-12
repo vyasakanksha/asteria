@@ -18,10 +18,12 @@
  *                                                                          *
  ****************************************************************************/
 
-/* test.frg */
-varying vec3 normal; 
-void main() {
-   float intensity = dot( normalize( normal ),
-                          normalize( gl_LightSource[0].position.xyz ) );
-   gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
-}
+// gfxText.h
+#ifndef _GFX_TEXT_H_
+#define _GFX_TEXT_H_
+
+float gfxDrawDbgTextFmt( float x, float y, float size, const char * str, ... );
+
+void gfxInitBitMapFont( void );
+
+#endif // gfxText.h

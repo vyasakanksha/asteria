@@ -29,16 +29,20 @@
 
 #include "libInclude.h"
 
-/* Support shader source files up to 256k in size. */
-static GLchar shaderBuffer[1 << 18];
+char * shaderBuffer = NULL;
 
 /* FIXME: Need to find a way to report error messages. */
-GLuint gfxLoadShader( const char * shader ) {
+GLuint gfxMakeShader( const char * shader ) {
    GLuint ret;
    FILE * input;
    const char * ext;
    struct stat st;
    int read;
+
+   /* The first time around, we want to allocate 256k of memory. */
+   if ( shaderBuffer == NULL ) {
+      shaderBuffer = calloc( 1 << 18, 1 );
+   }
 
    stat( shader, &st );
 
@@ -70,21 +74,22 @@ GLuint gfxLoadShader( const char * shader ) {
    shaderBuffer[read] = '\0';
    fclose( input );
 
-   glShaderSource( ret, 1, (const GLchar **)&shaderBuffer, &read );
+   glShaderSource( ret, 1, (const GLchar **) &shaderBuffer, &read );
    glCompileShader( ret );
 
    glGetShaderiv( ret, GL_COMPILE_STATUS, &read );
-   if ( read != GL_TRUE ) {
+   //if ( read != GL_TRUE ) {
       glGetShaderInfoLog( ret, 1 << 18, &read, shaderBuffer );
       shaderBuffer[read] = '\0';
       fprintf( stderr, "%s", shaderBuffer );
-   }
+   //}
 
    return ret;
 }
 
-GLuint gfxMakeShaderProgram( GLuint vtx, GLuint frg ) {
+GLuint gfxMakeProgram( GLuint vtx, GLuint frg ) {
    GLuint ret;
+   GLint status;
 
    ret = glCreateProgram();
 
@@ -92,6 +97,13 @@ GLuint gfxMakeShaderProgram( GLuint vtx, GLuint frg ) {
    glAttachShader( ret, frg );
 
    glLinkProgram( ret );
+
+   glGetProgramiv( ret, GL_LINK_STATUS, &status );
+   //if ( status != GL_TRUE ) {
+      glGetShaderInfoLog( ret, 1 << 18, &status, shaderBuffer );
+      shaderBuffer[status] = '\0';
+      fprintf( stderr, "%s", shaderBuffer );
+   //}
 
    return ret;
 
