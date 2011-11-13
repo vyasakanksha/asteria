@@ -20,6 +20,8 @@
 
 CC      = clang
 CFLAGS  = -g -Wall -Werror -O0 -march=native -Iinclude
+CXX     = clang
+CFLAGS  = -g -Wall -Werror -O0 -march=native -Iinclude
 LD      = clang
 LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm -ltiff
 
@@ -39,6 +41,10 @@ game: $(OBJ)
 obj/%.o: %.c
 	@ echo "  [CC]       $@"
 	@ $(CC) $(CFLAGS) -c $< -o $@
+
+obj/%.o: %.cc
+	@ echo "  [CXX]      $@"
+	@ $(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Include automatically generated dependency files. GNU Make will first look
 # for rules to build these files and update them if they are out of date.
@@ -62,10 +68,6 @@ dep/%.M: %.c
 
 obj/md5MeshTest.o: 
 
-md5Mesh: obj/md5Mesh.tab.o obj/lex.md5Mesh.o obj/md5MeshTest.o
-	@ echo "  [LD]       $@"
-	@ $(LD) $(LDFLAGS) $^ -o $@
-
 include/md5Mesh.h: md5Mesh.tab.c
 
 md5Mesh.tab.c: md5Mesh.y
@@ -73,14 +75,10 @@ md5Mesh.tab.c: md5Mesh.y
 	@ bison -p md5mesh -b md5Mesh --defines=include/md5Mesh.h -o $@ $<
 
 lex.md5Mesh.c: md5Mesh.lex
-	@ echo "  [LEX]      $@"
+	@ echo "  [FLEX]     $@"
 	@ flex -P md5mesh --yylineno -o $@ $<
 
 CLEANFILES += lex.md5Mesh.c md5Mesh.tab.c include/md5Mesh.h md5Mesh
-
-md5Anim: obj/md5Anim.tab.o obj/lex.md5Anim.o obj/md5AnimTest.o
-	@ echo "  [LD]       $@"
-	@ $(LD) $(LDFLAGS) $^ -o $@
 
 include/md5Anim.h: md5Anim.tab.c
 
