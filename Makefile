@@ -19,24 +19,27 @@
 #############################################################################
 
 CC      = clang
-CFLAGS  = -g -Wall -Werror -O0 -march=native -Iinclude
+CFLAGS  = -g -Wall -Werror -flto -Iinclude
 CXX     = clang
-CFLAGS  = -g -Wall -Werror -O0 -march=native -Iinclude
-LD      = clang
-LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm -ltiff
+CXXFLAGS  = -g -Wall -Werror -flto -Iinclude -fno-rtti -fno-exceptions
+LD      = llvm-ld
+LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm -ltiff -L alt++ -L /usr/lib -L /usr/lib64 -laltpp -native
 
-MODULES = main gfxInit vMath md5Mesh.tab lex.md5Mesh md5Operations gfxShader \
-			 gfxTexture gfxText gfxModes gfxConfig gfxDebug md5Anim.tab         \
-			 lex.md5Anim
+MODULES = main vMath md5Mesh.tab lex.md5Mesh md5Operations gfxShader \
+			 gfxTexture gfxText gfxModes gfxConfig gfxDebug md5Anim.tab \
+			 lex.md5Anim RenderContext
 
 OBJ = $(patsubst %,obj/%.o,$(MODULES))
 DEP = $(patsubst %,dep/%.M,$(MODULES))
 
-CLEANFILES = game obj/*.o dep/*.M
+CLEANFILES = game game.bc obj/*.o dep/*.M
 
-game: $(OBJ)
+game: $(OBJ) alt++/libaltpp.a
 	@ echo "  [LD]       $@"
-	@ $(LD) $(LDFLAGS) $^ -o $@
+	@ $(LD) $(LDFLAGS) -o $@ $(OBJ)
+
+alt++/libaltpp.a:
+	@ $(MAKE) -C alt++ libaltpp.a
 
 obj/%.o: %.c
 	@ echo "  [CC]       $@"
@@ -97,3 +100,5 @@ CLEANFILES += lex.md5Anim.c md5Anim.tab.c include/md5Anim.h md5Anim
 clean:
 	@ echo "  [CLEAN]"
 	@ rm -f $(CLEANFILES)
+
+.PHONY: alt++/libaltpp.a clean

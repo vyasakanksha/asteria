@@ -29,15 +29,19 @@
 #include <math.h>
 
 #include "libInclude.h"
-#include "gfxInit.h"
 #include "gfxTexture.h"
 #include "gfxModes.h"
 #include "gfxText.h"
 #include "gfxConfig.h"
 #include "gfxDebug.h"
 
+#include "RenderContext.h"
+#include "Md5RenderState.h"
+
 #include "md5Models.h"
 #include "md5Anim.h"
+
+using namespace asteria;
 
 int md5animparse( md5AnimData * );
 
@@ -51,6 +55,9 @@ int main( int argc, char * argv[] ) {
 
    gfxLoadConfig();
    SDL_Init( SDL_INIT_EVERYTHING );
+
+   RenderContext * rCtx;
+   Md5RenderState * md5State = new Md5RenderState();
 
    SDL_Rect ** modes = SDL_ListModes( NULL, SDL_OPENGL );
 
@@ -72,15 +79,15 @@ int main( int argc, char * argv[] ) {
       exit( 1 );
    } else if ( modes == (SDL_Rect **)-1 ) {
       fprintf( stderr, "Video modes unrestricted\n" );
-      gfxSetupOsWindow( gfxConfig.xRes, gfxConfig.yRes );
+      rCtx = new RenderContext( gfxConfig.xRes, gfxConfig.yRes, false );
    } else {
-      gfxSetupOsWindow( (*modes)->w, (*modes)->h );
+      rCtx = new RenderContext( (*modes)->w, (*modes)->h, false );
       for ( ; *modes; ++modes ) {
          fprintf( stderr, "width: %d, height: %d\n", (*modes)->w, (*modes)->h );
       }
    }
+   rCtx->Initialize( md5State );
 
-   gfxInitializeOpenGL();
 
    GL_Version = strtod( (char *)glGetString( GL_VERSION ), NULL );
    if ( GL_Version < 2.1f ) {

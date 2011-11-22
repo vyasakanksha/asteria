@@ -23,6 +23,8 @@
 
 #include "RenderState.h"
 
+#include "libInclude.h"
+
 namespace asteria {
 
    class RenderContext {
@@ -32,7 +34,7 @@ namespace asteria {
            screenHeight( h ), fullScreen( fs ) {
          }
 
-         
+         bool Initialize( RenderState * rs );
 
          // Set the render state
          bool SetState( RenderState * rs );
@@ -51,6 +53,11 @@ namespace asteria {
          RenderState * currentState;
          int screenWidth, screenHeight;
          bool fullScreen;
+
+         bool setupOsWindow( GLuint width, GLuint height );
+         bool resizeScreen( GLuint width, GLuint height );
+
+         SDL_Surface * screenSurface;
    };
 
 };

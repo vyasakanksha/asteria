@@ -24,6 +24,10 @@
 
 #include "libInclude.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif // C++
+
 // This is the structure that holds all graphics configuration information.
 // Right now it is kind of sparse, in the future we might add things such as
 // AA mode and renderer-specific settings ( LoD, etc ).
@@ -37,5 +41,9 @@ extern const char * gfxConfigFile;
 extern gfxConfigDat gfxConfig;
 
 void gfxLoadConfig( void );
+
+#ifdef __cplusplus
+}
+#endif // C++
 
 #endif // gfxConfig.h

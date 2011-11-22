@@ -22,8 +22,16 @@
 #ifndef _GFX_TEXT_H_
 #define _GFX_TEXT_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 float gfxDrawDbgTextFmt( float x, float y, float size, const char * str, ... );
 
 void gfxInitBitMapFont( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // gfxText.h

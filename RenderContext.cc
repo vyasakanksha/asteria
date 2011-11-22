@@ -19,15 +19,52 @@
  ****************************************************************************/
 
 #include "RenderContext.h"
-#include "libInclude.h"
 
 namespace asteria {
 
-   RenderContext::Initialize( RenderState * rs ) {
-      currentState = rs;
-      rs->EnterState();
+   bool RenderContext::Initialize( RenderState * rs ) {
+      if ( currentState == NULL ) {
+         currentState = rs;
+         rs->EnterState();
+      }
 
-      
+      if ( !setupOsWindow( screenWidth, screenHeight ) ) {
+         return false;
+      }
+
+      // Clear the screen to Black between frames.
+      glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+
+      // Set Depth clear value to 1.0f
+      glClearDepth( 1.0f );
+
+      // Specify how to perform depth testing.
+      glDepthFunc( GL_LEQUAL );
+
+      return true;
+
+   }
+
+   bool RenderContext::resizeScreen( GLuint width, GLuint height ) {
+
+      // Let OpenGL know we're working with a width by height context. */
+      glViewport( 0, 0, (GLsizei)width, (GLsizei)height );
+
+      return true;
+
+   }
+
+   bool RenderContext::setupOsWindow( GLuint width, GLuint height ) {
+      screenSurface = SDL_SetVideoMode( width, height, 0, SDL_OPENGL 
+                                                         | ( fullScreen
+                                                           ? SDL_FULLSCREEN
+                                                           : 0 ) );
+
+      if ( !screenSurface ) {
+         return false;
+      } else {
+         return resizeScreen( width, height );
+      }
    }
 
 };

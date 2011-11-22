@@ -22,6 +22,10 @@
 #ifndef _GFX_MODES_H_
 #define _GFX_MODES_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // These functions are designed to be called once each per frame. First we
 // enter 3D Mode and draw the scene, then we enter Overlay Mode and draw
 // anything that isn't a part of the 3D world.
@@ -29,5 +33,9 @@
 void gfxEnter3DMode( void );
 
 void gfxEnterOverlayMode( void );
+
+#ifdef __cplusplus
+}
+#endif // C++
 
 #endif // gfxModes.h

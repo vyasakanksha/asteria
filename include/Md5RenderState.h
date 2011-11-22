@@ -18,47 +18,25 @@
  *                                                                          *
  ****************************************************************************/
 
-/* gfxInit.c */
+#ifndef _ASTERIA_MD5_RENDER_STATE_H_
+#define _ASTERIA_MD5_RENDER_STATE_H_
 
-#include "libInclude.h"
+#include "RenderState.h"
 
-#include "gfxInit.h"
-#include "gfxConfig.h"
+namespace asteria {
 
-/* These are presently very simple configurations. As the game matures and   *
- * more advanced configurations become necessary, this file will evolve.     */
+   // This class knows how to enter and exit the render state for rendering Md5
+   // Models.
+   class Md5RenderState : public RenderState {
+      public:
+         virtual ~Md5RenderState() {}
 
-void gfxResizeScreen( GLuint width, GLuint height ) {
+         // Make these NOPs for now, just stand-ins.
+         virtual bool EnterState( void ) { return true; }
+         virtual bool ExitState( void ) { return true; }
+   };
 
-   /* Let OpenGL know we're working with a width by height context. */
-   glViewport( 0, 0, (GLsizei)width, (GLsizei)height );
+};
 
-}
+#endif // Md5RenderState.h
 
-void gfxInitializeOpenGL( void ) {
-
-   /* Clear the screen to Black between frames. */
-   glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-
-   /* Set Depth clear value to 1.0f */
-   glClearDepth( 1.0f );
-
-   // Specify how to perform depth testing.
-   glDepthFunc( GL_LEQUAL );
-
-}
-
-/* FIXME: This will be moved into the gfx Configuration portion of the main  *
- * Game State structure at a later date.                                     */
-static SDL_Surface * gfxScreen;
-
-void gfxSetupOsWindow( GLuint width, GLuint height ) {
-   gfxScreen = SDL_SetVideoMode( width, height, 0, SDL_OPENGL | SDL_HWSURFACE
-                                                 | ( gfxConfig.fullscreen
-                                                   ? SDL_FULLSCREEN
-                                                   : 0 ) );
-   if ( !gfxScreen ) {
-      fprintf( stderr, "Failed to do stuff1111!!!\n" );
-   }
-   gfxResizeScreen( width, height );
-}
