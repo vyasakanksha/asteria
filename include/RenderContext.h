@@ -21,9 +21,10 @@
 #ifndef _ASTERIA_RENDER_CONTEXT_H_
 #define _ASTERIA_RENDER_CONTEXT_H_
 
-#include "RenderState.h"
+#include "altio.h"
 
 #include "libInclude.h"
+#include "RenderState.h"
 
 namespace asteria {
 
@@ -49,10 +50,17 @@ namespace asteria {
          int  GetScreenHeight( void ) { return screenHeight; }
          bool IsFullScreen( void )    { return fullScreen; }
 
+         GLuint MakeShader( const alt::String & name, alt::Reader & rd );
+         GLuint MakeProgram( GLuint vtx, GLuint frg );
+
       private:
          RenderState * currentState;
          int screenWidth, screenHeight;
          bool fullScreen;
+
+         // We support shaders of up to 64k in size.
+         static const size_t shaderBufferSize = 1 << 16;
+         char shaderBuffer[shaderBufferSize];
 
          bool setupOsWindow( GLuint width, GLuint height );
          bool resizeScreen( GLuint width, GLuint height );

@@ -23,11 +23,12 @@ CFLAGS  = -g -Wall -Werror -flto -Iinclude
 CXX     = clang
 CXXFLAGS  = -g -Wall -Werror -flto -Iinclude -fno-rtti -fno-exceptions
 LD      = llvm-ld
-LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm -ltiff -L alt++ -L /usr/lib -L /usr/lib64 -laltpp -native
+LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm -ltiff -L alt++ -L /usr/lib           \
+          -L /usr/lib64 -laltpp -native
 
-MODULES = main vMath md5Mesh.tab lex.md5Mesh md5Operations gfxShader \
-			 gfxTexture gfxText gfxModes gfxConfig gfxDebug md5Anim.tab \
-			 lex.md5Anim RenderContext
+MODULES = main vMath md5Mesh.tab lex.md5Mesh md5Operations gfxTexture       \
+          gfxText gfxModes gfxConfig gfxDebug md5Anim.tab lex.md5Anim       \
+          RenderContext
 
 OBJ = $(patsubst %,obj/%.o,$(MODULES))
 DEP = $(patsubst %,dep/%.M,$(MODULES))
