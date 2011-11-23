@@ -23,17 +23,46 @@
 
 #include "RenderState.h"
 
+#include "vMath.h"
+
 namespace asteria {
 
    // This class knows how to enter and exit the render state for rendering Md5
    // Models.
    class Md5RenderState : public RenderState {
       public:
+         // Not sure this is how I want to do this, but it looks okay
+         // for the moment.
+         Md5RenderState( RenderContext * rc, GLuint vJ, GLuint vB,
+                         GLuint vP, GLuint vN, GLuint * uP, GLuint * uR,
+                         GLuint sP );
+
          virtual ~Md5RenderState() {}
 
          // Make these NOPs for now, just stand-ins.
          virtual bool EnterState( void ) { return true; }
          virtual bool ExitState( void ) { return true; }
+
+         // Set one of the joints to a given position and rotation.
+         void SetJoint( int idx, vec3 pos, vec4 rot );
+
+         // The maximum number of joints we are going to allow a single Md5
+         // mesh to have. This limit exists because we have a maximum number of
+         // allowed uniform variables. The OpenGL standard guaruntees us at
+         // least enough space for 64, though.
+         static const int MaxJoints = 64;
+
+      private:
+         // This is the render context we use to set up all of our stuff.
+         RenderContext * renderContext;
+
+         // The GLSL 'varying variables', i.e. our vertex attributes.
+         GLuint varJoints, varBiases, varPositions, varNormals;
+
+         GLuint shaderProg;
+
+         // Uniform variables
+         GLuint uniPos[MaxJoints], uniRot[MaxJoints];
    };
 
 };

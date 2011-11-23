@@ -18,56 +18,27 @@
  *                                                                          *
  ****************************************************************************/
 
-#ifndef _ASTERIA_RENDER_CONTEXT_H_
-#define _ASTERIA_RENDER_CONTEXT_H_
+#ifndef _ASTERIA_RENDER_STATE_FACTORY_H_
+#define _ASTERIA_RENDER_STATE_FACTORY_H_
 
-#include "altio.h"
-
-#include "libInclude.h"
+#include "RenderContext.h"
 #include "RenderState.h"
+#include "Md5RenderState.h"
 
 namespace asteria {
 
-   class RenderContext {
+   class RenderStateFactory {
       public:
-         RenderContext( int w, int h, bool fs )
-         : currentState( NULL ), screenWidth( w ),
-           screenHeight( h ), fullScreen( fs ) {
-         }
+         RenderStateFactory( RenderContext * rc );
 
-         bool Initialize( RenderState * rs );
-
-         // Set the render state
-         bool SetState( RenderState * rs );
-
-         // Set the Screen Resolution
-         bool SetResolution( int w, int h );
-
-         // Decide whether or not we are in fullscreen mode.
-         bool SetFullScreen( bool fullscreen );
-
-         int  GetScreenWidth( void )  { return screenWidth; }
-         int  GetScreenHeight( void ) { return screenHeight; }
-         bool IsFullScreen( void )    { return fullScreen; }
-
-         GLuint MakeShader( const alt::String & name, alt::Reader & rd );
-         GLuint MakeProgram( GLuint vtx, GLuint frg );
+         Md5RenderState * Md5FromShaderNames( const alt::String & vtx,
+                                              const alt::String & frg );
 
       private:
-         RenderState * currentState;
-         int screenWidth, screenHeight;
-         bool fullScreen;
+         RenderContext * renderContext;
 
-         // We support shaders of up to 64k in size.
-         static const size_t shaderBufferSize = 1 << 16;
-         char shaderBuffer[shaderBufferSize];
-
-         bool setupOsWindow( GLuint width, GLuint height );
-         bool resizeScreen( GLuint width, GLuint height );
-
-         SDL_Surface * screenSurface;
    };
 
 };
 
-#endif // RenderContext.h
+#endif // RenderStateFactory.h
