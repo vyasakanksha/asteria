@@ -28,7 +28,7 @@ LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm -ltiff -L alt++ -L /usr/lib           \
 
 MODULES = main vMath md5Mesh.tab lex.md5Mesh md5Operations gfxTexture       \
           gfxText gfxModes gfxConfig gfxDebug md5Anim.tab lex.md5Anim       \
-          RenderContext RenderStateFactory
+          RenderContext RenderStateFactory Md5RenderState
 
 OBJ = $(patsubst %,obj/%.o,$(MODULES))
 DEP = $(patsubst %,dep/%.M,$(MODULES))

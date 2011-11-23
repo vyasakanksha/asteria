@@ -33,15 +33,15 @@ namespace asteria {
       public:
          // Not sure this is how I want to do this, but it looks okay
          // for the moment.
-         Md5RenderState( RenderContext * rc, GLuint vJ, GLuint vB,
-                         GLuint vP, GLuint vN, GLuint * uP, GLuint * uR,
-                         GLuint sP );
+         Md5RenderState( GLuint vJ, GLuint vB, GLuint vP, GLuint vN,
+                         GLuint * uP, GLuint * uR,
+                         GLuint fS, GLuint vS, GLuint sP );
 
-         virtual ~Md5RenderState() {}
+         virtual ~Md5RenderState();
 
          // Make these NOPs for now, just stand-ins.
-         virtual bool EnterState( void ) { return true; }
-         virtual bool ExitState( void ) { return true; }
+         virtual bool EnterState( void );
+         virtual bool ExitState( void );
 
          // Set one of the joints to a given position and rotation.
          void SetJoint( int idx, vec3 pos, vec4 rot );
@@ -53,13 +53,10 @@ namespace asteria {
          static const int MaxJoints = 64;
 
       private:
-         // This is the render context we use to set up all of our stuff.
-         RenderContext * renderContext;
-
          // The GLSL 'varying variables', i.e. our vertex attributes.
          GLuint varJoints, varBiases, varPositions, varNormals;
 
-         GLuint shaderProg;
+         GLuint vtxShader, frgShader, shaderProg;
 
          // Uniform variables
          GLuint uniPos[MaxJoints], uniRot[MaxJoints];
@@ -68,4 +65,3 @@ namespace asteria {
 };
 
 #endif // Md5RenderState.h
-

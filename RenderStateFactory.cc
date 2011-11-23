@@ -69,7 +69,7 @@ namespace asteria {
 
       return new Md5RenderState( renderContext, varJoints, varBiases,
                                  varPositions, varNormals, uniPos, uniRot,
-                                 shaderProg );
+                                 shaderVtx, shaderFrag, shaderProg );
 
    }
 
