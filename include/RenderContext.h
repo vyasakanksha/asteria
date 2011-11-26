@@ -37,6 +37,10 @@ namespace asteria {
 
          bool Initialize( void );
 
+         bool SetPerspective( float angle, float near, float far );
+         
+         bool SetOrthographic( void );
+
          // Set the render state
          bool SetState( RenderState * rs );
 

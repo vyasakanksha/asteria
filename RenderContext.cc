@@ -144,4 +144,36 @@ namespace asteria {
 
    }
 
+   // Call this before doing anything in the 3D world.
+   bool RenderContext::SetPerspective( float angle, float near, float far ) {
+      // Aspect ratio
+      GLfloat ratio = (GLfloat)screenWidth / (GLfloat)screenHeight;
+
+      // Prepare a perspective projection.
+      glMatrixMode( GL_PROJECTION );
+      glLoadIdentity();
+      gluPerspective( angle, ratio, near, far );
+
+      glMatrixMode( GL_MODELVIEW );
+
+      // Turn on depth testing.
+      glEnable( GL_DEPTH_TEST );
+
+      glDisable( GL_BLEND );
+      return true;
+   }
+
+   // Call this before drawing any part of the overlay.
+   bool RenderContext::SetOrthographic( void ) {
+      glMatrixMode( GL_PROJECTION );
+      glLoadIdentity();
+
+      glOrtho( 0, 1, 0, 1, -1, 1 );
+
+      glMatrixMode( GL_MODELVIEW );
+      glLoadIdentity();
+
+      glUseProgram( 0 );
+      return true;
+   }
 };

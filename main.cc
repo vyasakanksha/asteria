@@ -148,7 +148,7 @@ int main( int argc, char * argv[] ) {
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
       glLoadIdentity();
 
-      gfxEnter3DMode();
+      renderContext->SetPerspective( 45.0f, 0.01f, 100.0f );
 
 #if 0
       // md5 Drawing Code.
@@ -170,7 +170,7 @@ int main( int argc, char * argv[] ) {
 
 #endif
       // Overlay drawing code.
-      gfxEnterOverlayMode();
+      renderContext->SetOrthographic();
 
       gfxDrawDbgHUD();
 
