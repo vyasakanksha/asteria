@@ -243,6 +243,8 @@ md5BufferedMesh * md5BufferMesh( md5BaseMesh * mesh ) {
    return ret;
 }
 
+#if 0
+
 static GLint md5VarJoints, md5VarBiases, md5VarPositions, md5VarNormals;
 
 static GLint md5UniPos[MD5_MAX_JOINTS], md5UniRot[MD5_MAX_JOINTS];
@@ -342,3 +344,5 @@ void md5DrawMesh( void ) {
    glDrawElements( GL_TRIANGLES, md5NumIndices, GL_UNSIGNED_INT,
                   (GLvoid *)0 );
 }
+
+#endif

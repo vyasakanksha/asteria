@@ -35,7 +35,7 @@ namespace asteria {
            screenHeight( h ), fullScreen( fs ) {
          }
 
-         bool Initialize( RenderState * rs );
+         bool Initialize( void );
 
          // Set the render state
          bool SetState( RenderState * rs );

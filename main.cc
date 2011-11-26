@@ -37,9 +37,12 @@
 
 #include "RenderContext.h"
 #include "Md5RenderState.h"
+#include "RenderStateFactory.h"
 
 #include "md5Models.h"
 #include "md5Anim.h"
+
+#define DTR( N ) fprintf( stderr, "trace-point %d.\n", (N) )
 
 using namespace asteria;
 
@@ -56,10 +59,11 @@ int main( int argc, char * argv[] ) {
    gfxLoadConfig();
    SDL_Init( SDL_INIT_EVERYTHING );
 
-   RenderContext * rCtx;
-   Md5RenderState * md5State = new Md5RenderState();
+   RenderContext * renderContext;
 
    SDL_Rect ** modes = SDL_ListModes( NULL, SDL_OPENGL );
+
+   DTR( 0 );
 
    if ( argc < 2 ) { 
       char * n;
@@ -74,20 +78,26 @@ int main( int argc, char * argv[] ) {
       exit( 1 );
    }
 
+   DTR( 1 );
+
    if ( modes == NULL ) {
       fprintf( stderr, "No video modes available...\n" );
       exit( 1 );
    } else if ( modes == (SDL_Rect **)-1 ) {
       fprintf( stderr, "Video modes unrestricted\n" );
-      rCtx = new RenderContext( gfxConfig.xRes, gfxConfig.yRes, false );
+      renderContext = new RenderContext( gfxConfig.xRes, gfxConfig.yRes, false );
    } else {
-      rCtx = new RenderContext( (*modes)->w, (*modes)->h, false );
+      renderContext = new RenderContext( (*modes)->w, (*modes)->h, false );
       for ( ; *modes; ++modes ) {
          fprintf( stderr, "width: %d, height: %d\n", (*modes)->w, (*modes)->h );
       }
    }
-   rCtx->Initialize( md5State );
 
+   DTR( 2 );
+
+   renderContext->Initialize();
+
+   DTR( 3 );
 
    GL_Version = strtod( (char *)glGetString( GL_VERSION ), NULL );
    if ( GL_Version < 2.1f ) {
@@ -102,25 +112,36 @@ int main( int argc, char * argv[] ) {
       printf( "Detected OpenGL Version %2.1f, Have Fun!\n", GL_Version );
    }
 
+
+   DTR( 4 );
+
    if ( GLEW_OK != glewInit() ) {
       fprintf( stderr, "GLEW Failed to initialize.\n" );
       SDL_Quit();
       exit( 1 );
    }
 
-   md5InitSystem();
+   DTR( 5 );
+
+   RenderStateFactory * rsFactory = new RenderStateFactory( renderContext );
+   Md5RenderState * md5State = rsFactory->Md5FromShaderNames( "shader/md5skel.vtx",
+                                                              "shader/test.frg" );
+
+
+   renderContext->SetState( md5State );
 
    gfxInitBitMapFont();
 
-   md5BaseMesh     * base = md5LoadMesh( meshFile );
-   md5BufferedMesh * mesh = md5BufferMesh( base );
+
+   //md5BaseMesh     * base = md5LoadMesh( meshFile );
+   //md5BufferedMesh * mesh = md5BufferMesh( base );
 
    SDL_Event event;
 
    int keepGoing = 1;
 
    for ( i = 0; keepGoing; ++i ) {
-      int j;
+      //int j;
 
       gfxRegisterFrame();
 
@@ -129,6 +150,7 @@ int main( int argc, char * argv[] ) {
 
       gfxEnter3DMode();
 
+#if 0
       // md5 Drawing Code.
       md5LoadState();
 
@@ -146,6 +168,7 @@ int main( int argc, char * argv[] ) {
 
       md5ExitState();
 
+#endif
       // Overlay drawing code.
       gfxEnterOverlayMode();
 

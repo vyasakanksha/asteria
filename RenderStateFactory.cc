@@ -67,8 +67,8 @@ namespace asteria {
          return NULL;
       }
 
-      return new Md5RenderState( renderContext, varJoints, varBiases,
-                                 varPositions, varNormals, uniPos, uniRot,
+      return new Md5RenderState( varJoints, varBiases, varPositions, varNormals,
+                                 uniPos, uniRot,
                                  shaderVtx, shaderFrag, shaderProg );
 
    }

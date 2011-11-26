@@ -26,12 +26,7 @@ using namespace alt;
 
 namespace asteria {
 
-   bool RenderContext::Initialize( RenderState * rs ) {
-      if ( currentState == NULL ) {
-         currentState = rs;
-         rs->EnterState();
-      }
-
+   bool RenderContext::Initialize( void ) {
       if ( !setupOsWindow( screenWidth, screenHeight ) ) {
          return false;
       }
@@ -71,6 +66,14 @@ namespace asteria {
       }
    }
 
+   bool RenderContext::SetState( RenderState * rs ) {
+      if ( currentState != NULL ) {
+         currentState->ExitState();
+      }
+      currentState = rs;
+      return currentState->EnterState();
+   }
+
    // FIXME: Need to find a better way to report error messages.
    GLuint RenderContext::MakeShader( const String & name, Reader & src ) {
       GLuint ret;
@@ -94,13 +97,16 @@ namespace asteria {
       }
 
       read = src.Read( (void * )shaderBuffer, shaderBufferSize );
-      if ( shaderBufferSize == read ) {
+
+      if ( shaderBufferSize == (size_t)read ) {
          FPrintf( Stderr, "Shader '" + name + "' must be less than %d bytes"
                           " in size.\n", shaderBufferSize );
       }
+
       shaderBuffer[read] = '\0';
 
-      glShaderSource( ret, 1, (const GLchar ** )&shaderBuffer, &read );
+      glShaderSource( ret, 1, (const GLchar ** )&( ext = shaderBuffer ), NULL );
+
       glCompileShader( ret );
 
       glGetShaderiv( ret, GL_COMPILE_STATUS, &read );
