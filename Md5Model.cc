@@ -21,6 +21,7 @@
 #include "Md5Model.h"
 
 namespace asteria {
+
    Md5Model::Md5Model( unsigned rID, md5AnimData * aD,
                        md5BaseMesh * baseM, md5BufferedMesh * buffM,
                        Md5RenderState * rS )
@@ -51,6 +52,11 @@ namespace asteria {
          md5Joint * j = baseMesh->joints;
          renderState->SetJoint( i, j->position, j->orient );
       }
+
+      glDrawElements( GL_TRIANGLES, baseMesh->numTris * 3,
+                      GL_UNSIGNED_INT, (GLvoid * )0 );
       return true;
    }
+
 };
+

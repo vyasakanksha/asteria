@@ -18,15 +18,28 @@
  *                                                                          *
  ****************************************************************************/
 
-#ifndef _ASTERIA_MD5_MODEL_FACTORY_H_
-#define _ASTERIA_MD5_MODEL_FACTORY_H_
+#ifndef _ASTERIA_MD5_FACTORY_H_
+#define _ASTERIA_MD5_FACTORY_H_
+
+#include "altio.h"
+#include "alt++/String.h"
+
+#include "Md5Models.h"
+#include "Md5RenderState.h"
 
 namespace asteria {
 
-   class Md5ModelFactory {
+   class Md5Factory {
       public:
+         Md5Factory( Md5RenderState * rS );
+
+         Md5Model * FromName( const alt::String & name );
 
       private:
+         Md5RenderState * renderState;
+
+         md5BaseMesh * loadMesh( alt::Reader & r );
+         md5BufferedMesh * bufferMesh( md5BaseMesh * mesh );
 
    };
 
