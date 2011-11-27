@@ -18,39 +18,54 @@
  *                                                                          *
  ****************************************************************************/
 
-#ifndef _ASTERIA_MODEL_H_
-#define _ASTERIA_MODEL_H_
+#ifndef _ASTERIA_MD5_MODEL_H_
+#define _ASTERIA_MD5_MODEL_H_
 
-#include "altio.h"
-#include "libInclude.h"
+#include "md5Structures.h"
 
 namespace asteria {
 
-   class Model {
+   class Md5Model : public Model {
       public:
-         virtual ~Model() = 0;
+         Md5Model( unsigned rID,
+                   md5AnimData * aD,
+                   md5BaseMesh * baseM,
+                   md5BufferedMesh * buffM
+                 );
 
-         // These functions set up and break-down OpenGL state required for the
-         // rendering of this model. This is to prevent repeatedly calling code
-         // when the same model is rendered multiple times.
+         virtual ~Md5Model();
+
+         // Prepare this model to be rendered.
          virtual bool StageModel( void );
+
+         // Clean up after the staging process
          virtual bool UnstageModel( void );
 
+         // Draw animation 'anim' at 'time' milliseconds.
+         virtual bool DrawFrame( int anim, int time );
 
-         // The code that calls these functions is responsible for performing
-         // any transformations that are necessary for the model to render
-         // correctly.
-
-         // 'anim' is the number of the animation sequence being rendered.
-         // 'time' is the number of milliseconds since the animation started.
-         virtual bool DrawFrame( int anim, int time ) = 0;
-
-         virtual bool DrawStatic( void ) = 0;
+         // Draws the base mesh.
+         virtual bool DrawStatic( void );
 
       private:
+         // Every resource ( audio, texture, model, etc... ) gets a 'resID'
+         // tag. This is a unique identifier assigned to it by the resource
+         // manager.
+         unsigned resID;
+
+         // Per-frame skeletal animation data.
+         md5AnimData * animData;
+
+         // For now, we're not getting rid of the base mesh right away, in the
+         // future we might decide to only hold on to the buffered version.
+         md5BaseMesh * baseMesh;
+
+         // This is the version of the mesh that has it's data in GPU memory
+         // ( or wherever else OpenGL decides to put its buffer objects ).
+         md5BufferedMesh * bufferedMesh;
 
    };
 
 };
 
-#endif // Model.h
+#endif // Md5Model.h
