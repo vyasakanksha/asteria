@@ -24,7 +24,7 @@
 
    #include <math.h>
 
-   #include "md5Models.h"
+   #include "md5Structures.h"
 
    extern int md5meshlex( void );
    extern int md5mesherror( void * , const char * );

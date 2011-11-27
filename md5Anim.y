@@ -25,7 +25,7 @@
 %{
    #include <stdio.h>
    #include <math.h>
-   #include "md5Models.h"
+   #include "md5Structures.h"
 
    extern int md5animlex( void );
    extern void md5animerror( void *, const char * );
