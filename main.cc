@@ -39,7 +39,7 @@
 #include "Md5RenderState.h"
 #include "RenderStateFactory.h"
 
-#define DTR( N ) fprintf( stderr, "trace-point %d.\n", (N) )
+
 
 using namespace asteria;
 
@@ -58,7 +58,7 @@ int main( int argc, char * argv[] ) {
 
    SDL_Rect ** modes = SDL_ListModes( NULL, SDL_OPENGL );
 
-   DTR( 0 );
+
 
    if ( argc < 2 ) { 
       char * n;
@@ -73,7 +73,7 @@ int main( int argc, char * argv[] ) {
       exit( 1 );
    }
 
-   DTR( 1 );
+
 
    if ( modes == NULL ) {
       fprintf( stderr, "No video modes available...\n" );
@@ -88,11 +88,11 @@ int main( int argc, char * argv[] ) {
       }
    }
 
-   DTR( 2 );
+
 
    renderContext->Initialize();
 
-   DTR( 3 );
+
 
    GL_Version = strtod( (char *)glGetString( GL_VERSION ), NULL );
    if ( GL_Version < 2.1f ) {
@@ -108,7 +108,7 @@ int main( int argc, char * argv[] ) {
    }
 
 
-   DTR( 4 );
+
 
    if ( GLEW_OK != glewInit() ) {
       fprintf( stderr, "GLEW Failed to initialize.\n" );
@@ -116,7 +116,7 @@ int main( int argc, char * argv[] ) {
       exit( 1 );
    }
 
-   DTR( 5 );
+
 
    RenderStateFactory * rsFactory = new RenderStateFactory( renderContext );
    Md5RenderState * md5State = rsFactory->Md5FromShaderNames( "shader/md5skel.vtx",

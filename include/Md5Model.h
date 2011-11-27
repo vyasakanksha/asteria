@@ -21,6 +21,8 @@
 #ifndef _ASTERIA_MD5_MODEL_H_
 #define _ASTERIA_MD5_MODEL_H_
 
+#include "Model.h"
+#include "Md5RenderState.h"
 #include "md5Structures.h"
 
 namespace asteria {
@@ -30,7 +32,8 @@ namespace asteria {
          Md5Model( unsigned rID,
                    md5AnimData * aD,
                    md5BaseMesh * baseM,
-                   md5BufferedMesh * buffM
+                   md5BufferedMesh * buffM,
+                   Md5RenderState * rS
                  );
 
          virtual ~Md5Model();
@@ -64,6 +67,7 @@ namespace asteria {
          // ( or wherever else OpenGL decides to put its buffer objects ).
          md5BufferedMesh * bufferedMesh;
 
+         Md5RenderState * renderState;
    };
 
 };

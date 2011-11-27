@@ -24,6 +24,7 @@
 #include "RenderState.h"
 
 #include "vMath.h"
+#include "md5Structures.h"
 
 namespace asteria {
 
@@ -51,6 +52,8 @@ namespace asteria {
          // allowed uniform variables. The OpenGL standard guaruntees us at
          // least enough space for 64, though.
          static const int MaxJoints = 64;
+
+         bool StageBufferedMesh( md5BufferedMesh * bMesh );
 
       private:
          // The GLSL 'varying variables', i.e. our vertex attributes.
