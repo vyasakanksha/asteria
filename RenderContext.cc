@@ -26,6 +26,14 @@ using namespace alt;
 
 namespace asteria {
 
+   RenderContext::dummyModel RenderContext::dModel;
+   RenderContext::dummyState RenderContext::dState;
+
+   RenderContext::RenderContext( int w, int h, bool fs )
+      : currentState( &dState ), currentModel( &dModel ),
+        screenWidth( w ), screenHeight( h ),
+        fullScreen( fs ) {}
+
    bool RenderContext::Initialize( void ) {
       if ( !setupOsWindow( screenWidth, screenHeight ) ) {
          return false;
@@ -53,6 +61,12 @@ namespace asteria {
 
    }
 
+   bool RenderContext::SetModel( Model * model ) {
+      currentModel->UnstageModel();
+      currentModel = model;
+      return currentModel->StageModel();
+   }
+
    bool RenderContext::setupOsWindow( GLuint width, GLuint height ) {
       screenSurface = SDL_SetVideoMode( width, height, 0, SDL_OPENGL 
                                                         | ( fullScreen
@@ -67,9 +81,7 @@ namespace asteria {
    }
 
    bool RenderContext::SetState( RenderState * rs ) {
-      if ( currentState != NULL ) {
-         currentState->ExitState();
-      }
+      currentState->ExitState();
       currentState = rs;
       return currentState->EnterState();
    }

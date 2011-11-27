@@ -25,15 +25,13 @@
 
 #include "libInclude.h"
 #include "RenderState.h"
+#include "Model.h"
 
 namespace asteria {
 
    class RenderContext {
       public:
-         RenderContext( int w, int h, bool fs )
-         : currentState( NULL ), screenWidth( w ),
-           screenHeight( h ), fullScreen( fs ) {
-         }
+         RenderContext( int w, int h, bool fs );
 
          bool Initialize( void );
 
@@ -41,8 +39,11 @@ namespace asteria {
          
          bool SetOrthographic( void );
 
-         // Set the render state
+         // Set the render state.
          bool SetState( RenderState * rs );
+
+         // Set the current model.
+         bool SetModel( Model * model );
 
          // Set the Screen Resolution
          bool SetResolution( int w, int h );
@@ -59,6 +60,7 @@ namespace asteria {
 
       private:
          RenderState * currentState;
+         Model * currentModel;
          int screenWidth, screenHeight;
          bool fullScreen;
 
@@ -70,6 +72,23 @@ namespace asteria {
          bool resizeScreen( GLuint width, GLuint height );
 
          SDL_Surface * screenSurface;
+
+         // The whole point of the following two declarations is to provide
+         // no-op instances of the state-transition classes, so that code
+         // involving them doesn't need to be sullied with special cases.
+         static class dummyModel : public Model {
+            public:
+               virtual bool StageModel( void )              { return true; }
+               virtual bool UnstageModel( void )            { return true; }
+               virtual bool DrawFrame( int anim, int time ) { return true; }
+               virtual bool DrawStatic( void )              { return true; }
+         } dModel;
+         static class dummyState : public RenderState {
+            public:
+               virtual bool EnterState( void ) { return true; }
+               virtual bool ExitState( void )  { return true; }
+         } dState;
+
    };
 
 };

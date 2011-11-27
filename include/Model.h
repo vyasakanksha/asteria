@@ -28,13 +28,13 @@ namespace asteria {
 
    class Model {
       public:
-         virtual ~Model() = 0;
+         virtual ~Model() {}
 
          // These functions set up and break-down OpenGL state required for the
          // rendering of this model. This is to prevent repeatedly calling code
          // when the same model is rendered multiple times.
-         virtual bool StageModel( void );
-         virtual bool UnstageModel( void );
+         virtual bool StageModel( void ) = 0;
+         virtual bool UnstageModel( void ) = 0;
 
 
          // The code that calls these functions is responsible for performing
