@@ -22,13 +22,23 @@
 %{
    #include <stdlib.h>
 
+   #include "altio.h"
+
+   #include "md5Structures.h"
    #include "md5Mesh.h"
 
-   void md5mesherror( void * , const char * );
+   #define YY_INPUT( buf, res, size )                                         \
+   ( res ) = yyget_extra( yyscanner )->Read( ( buf ), ( size ) )
+   #define YY_EXTRA_TYPE alt::Reader *
+   #define YY_USER_ACTION {                                                   \
+      yylloc->first_column = yylloc->last_column;                             \
+      yylloc->last_column += strlen( yytext );                               \
+   }
+
    static int lineno = 1;
 %}
 
-%option noinput nounput
+%option reentrant noyywrap bison-bridge bison-locations noinput nounput
 
 %%
 
@@ -47,15 +57,15 @@
 "weight"                { return TOK_WEIGHT;    }
 
 "-"?[0-9]+"."[0-9]+     {
-      md5meshlval.rVal = strtof( yytext, NULL );
+      yylval->rVal = strtof( yytext, NULL );
       return TOK_RNUM;
    }
 "-"?[0-9]+                  {
-      md5meshlval.zVal = strtol( yytext, NULL, 10 );
+      yylval->zVal = strtol( yytext, NULL, 10 );
       return TOK_ZNUM;
    }
 "\""[^\n\"]+"\""        {
-      md5meshlval.sVal = strdup( yytext );
+      yylval->sVal = strdup( yytext );
       return TOK_STRING;
    }
 
@@ -69,12 +79,9 @@
 
 %%
 
-void md5mesherror( void * nil, const char * err ) {
+void md5mesherror( YYLTYPE * loc, void * yyscanner,
+                   md5MeshData * blah, const char * err ) {
    fprintf( stderr, "md5Mesh: %d error: %s\n",
                     lineno,
                     err );
-}
-
-int yywrap( void ) {
-   return 1;
 }

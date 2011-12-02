@@ -1,7 +1,7 @@
 .*.swp
 game
-md5Mesh.tab.c
-lex.md5Mesh.c
-md5Anim.tab.c
-lex.md5Anim.c
+md5Mesh.tab.cc
+lex.md5Mesh.cc
+md5Anim.tab.cc
+lex.md5Anim.cc
 md5Mesh

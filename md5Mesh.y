@@ -26,8 +26,11 @@
 
    #include "md5Structures.h"
 
-   extern int md5meshlex( void );
-   extern int md5mesherror( void * , const char * );
+   #include "md5Mesh.h"
+
+   extern int md5meshlex( YYSTYPE *, YYLTYPE *, void * );
+   extern int md5mesherror( YYLTYPE * loc, void * ,
+                            md5MeshData *, const char * );
 
    static int jointIdx, meshIdx;
 %}
@@ -56,9 +59,14 @@
 %token            TOK_ZNUM          "int"
 %token            TOK_STRING        "string"
 
-%error-verbose
 %locations
+%pure_parser
+
+%error-verbose
+
+%parse-param{void * scan}
 %parse-param { md5MeshData * mdl }
+%lex-param{void * scan }
 
 %type <rVal> "float"
 %type <zVal> "int" 
@@ -72,9 +80,9 @@ Md5File
      "numJoints" "int"
      "numMeshes" "int" {
          mdl->numJoints = $6;
-         mdl->joints    = malloc( sizeof( md5Joint ) * $6 );
+         mdl->joints    = new md5Joint[$6];
          mdl->numMeshes = $8;
-         mdl->meshes    = malloc( sizeof( md5Mesh )  * $8 );
+         mdl->meshes    = new md5Mesh[$8];
 
          meshIdx = jointIdx = 0;
 
@@ -132,19 +140,19 @@ Mesh
 
          "numverts" "int" {
             mdl->meshes[meshIdx].numVerts   = $6;
-            mdl->meshes[meshIdx].verts = malloc( sizeof( md5Vert ) * $6 );
+            mdl->meshes[meshIdx].verts = new md5Vert[$6];
          }
          VertSet
 
          "numtris" "int" {
             mdl->meshes[meshIdx].numTris    = $10;
-            mdl->meshes[meshIdx].tris = malloc( sizeof( md5Tri ) * $10 );
+            mdl->meshes[meshIdx].tris = new md5Tri[$10];
          }
          TriSet
 
          "numweights" "int" {
             mdl->meshes[meshIdx].numWeights = $14;
-            mdl->meshes[meshIdx].weights = malloc( sizeof( md5Weight ) * $14 );
+            mdl->meshes[meshIdx].weights = new md5Weight[$14];
          }
          WeightSet
      '}' {

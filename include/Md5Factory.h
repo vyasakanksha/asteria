@@ -24,7 +24,7 @@
 #include "altio.h"
 #include "alt++/String.h"
 
-#include "Md5Models.h"
+#include "Md5Model.h"
 #include "Md5RenderState.h"
 
 namespace asteria {
@@ -38,7 +38,7 @@ namespace asteria {
       private:
          Md5RenderState * renderState;
 
-         md5BaseMesh * loadMesh( alt::Reader & r );
+         md5BaseMesh     * loadMesh( alt::Reader & r );
          md5BufferedMesh * bufferMesh( md5BaseMesh * mesh );
 
    };

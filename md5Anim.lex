@@ -25,7 +25,7 @@
 #include "md5Anim.h"
 
 static int lineno = 1;  /* To keep track of the line number for debugging */
-void md5animerror( const char * );
+void md5animerror( void *, const char * );
 %}
 
 %option noinput nounput
@@ -62,7 +62,7 @@ int md5animwrap( void )
 }
 
 /* Prints the error and associated string, if it occurs */
-void md5animerror( const char * err )
+void md5animerror( void *, const char * err )
 {
    fprintf( stderr, "md5anim error: %s at line <%d> \n", err, lineno );
 }

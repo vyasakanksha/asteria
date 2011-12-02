@@ -18,16 +18,16 @@
 #                                                                           #
 #############################################################################
 
-CC      = gcc
+CC      = clang
 CFLAGS  = -g -Wall -Werror -Iinclude
-CXX     = g++
+CXX     = clang
 CXXFLAGS  = -g -Wall -Werror -Iinclude -fno-rtti -fno-exceptions
 LD      = gcc
 LDFLAGS = -lGL -lGLU -lSDL -lGLEW -lm -ltiff -L ./alt++/ -laltpp
 
-MODULES = main vMath md5Mesh.tab lex.md5Mesh md5Operations gfxTexture       \
+MODULES = main vMath md5Mesh.tab lex.md5Mesh gfxTexture       \
           gfxText gfxConfig gfxDebug md5Anim.tab lex.md5Anim RenderContext  \
-          RenderStateFactory Md5RenderState Md5Model
+          RenderStateFactory Md5RenderState Md5Model Md5Factory
 
 OBJ = $(patsubst %,obj/%.o,$(MODULES))
 DEP = $(patsubst %,dep/%.M,$(MODULES))
@@ -66,6 +66,12 @@ dep/%.M: %.c
 	                 | sed 's#[^ ]\+\.o#obj/&#g'     \
 	                 > $@
 
+# Build dependency files using gcc's '-M*' flags. The sed and awk scripts
+# modify the files to fit into our directory model.
+dep/%.M: %.cc
+	@ g++ -MM -MG $< | sed 's#[^ ]\+\.h#include/&#g' \
+	                 | sed 's#[^ ]\+\.o#obj/&#g'     \
+	                 > $@
 
 
 ######################### Begin Lex/Yacc Rules ##############################
@@ -74,29 +80,29 @@ dep/%.M: %.c
 
 obj/md5MeshTest.o: 
 
-include/md5Mesh.h: md5Mesh.tab.c
+include/md5Mesh.h: md5Mesh.tab.cc
 
-md5Mesh.tab.c: md5Mesh.y
+md5Mesh.tab.cc: md5Mesh.y
 	@ echo "  [BISON]    $@"
 	@ bison -p md5mesh -b md5Mesh --defines=include/md5Mesh.h -o $@ $<
 
-lex.md5Mesh.c: md5Mesh.lex
+lex.md5Mesh.cc: md5Mesh.lex
 	@ echo "  [FLEX]     $@"
 	@ flex -P md5mesh --yylineno -o $@ $<
 
-CLEANFILES += lex.md5Mesh.c md5Mesh.tab.c include/md5Mesh.h md5Mesh
+CLEANFILES += lex.md5Mesh.cc md5Mesh.tab.cc include/md5Mesh.h md5Mesh
 
-include/md5Anim.h: md5Anim.tab.c
+include/md5Anim.h: md5Anim.tab.cc
 
-md5Anim.tab.c: md5Anim.y
+md5Anim.tab.cc: md5Anim.y
 	@ echo "  [BISON]    $@"
 	@ bison -p md5anim -b md5Anim --defines=include/md5Anim.h -o $@ $<
 
-lex.md5Anim.c: md5Anim.lex
-	@ echo "  [LEX]      $@"
+lex.md5Anim.cc: md5Anim.lex
+	@ echo "  [FLEX]      $@"
 	@ flex -P md5anim --yylineno -o $@ $<
 
-CLEANFILES += lex.md5Anim.c md5Anim.tab.c include/md5Anim.h md5Anim
+CLEANFILES += lex.md5Anim.cc md5Anim.tab.cc include/md5Anim.h md5Anim
 
 #                                                                           #
 ########################## End Lex/Yacc Rules ###############################

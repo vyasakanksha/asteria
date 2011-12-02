@@ -94,21 +94,21 @@
 md5Anim
    : "numFrames" "int"  {
          anim->numFrames = $2;
-         anim->frames = malloc( sizeof( md5AnimFrame ) * $2 );
+         anim->frames = new md5AnimFrame[$2];
      }
      "numJoints" "int"  { 
         int i;
         anim->numJoints = $5;
-        anim->baseFrame = malloc( sizeof( md5Joint ) * $5 );
+        anim->baseFrame = new md5Joint[$5];
         for( i = 0; i < anim->numFrames; i++) {
-         anim->frames[i].joints = malloc( sizeof( md5Joint ) * $5 );
+         anim->frames[i].joints = new md5Joint[$5];
         }
      }
      "frameRate" "int"  { 
         anim->frameDur = 1000/$8;
      }
      "numAnimatedComponents" "int" {
-        jointFlags = malloc( sizeof( int ) * $11 );
+        jointFlags = new int[$11];
      }
      hierarchy bounds baseframe frame
    ;       
