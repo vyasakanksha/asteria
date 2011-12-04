@@ -46,7 +46,7 @@ namespace asteria {
 
    void Md5RenderState::SetJoint( int i, vec3 pos, vec4 rot ) {
       glUniform3fv( uniPos[i], 1, (GLfloat * )&pos );
-      glUniform4fv( uniPos[i], 1, (GLfloat * )&rot );
+      glUniform4fv( uniRot[i], 1, (GLfloat * )&rot );
    }
 
    bool Md5RenderState::StageBufferedMesh( md5BufferedMesh * bMesh ) {
