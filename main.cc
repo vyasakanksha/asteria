@@ -38,8 +38,10 @@
 #include "RenderContext.h"
 #include "Md5RenderState.h"
 #include "RenderStateFactory.h"
+#include "Md5Factory.h"
 
-
+#define CHK { if ( glGetError() != GL_NO_ERROR ) { fprintf( stderr,   \
+                        "%s: %d\n", __FILE__, __LINE__ ); exit( 1 ); } }
 
 using namespace asteria;
 
@@ -58,8 +60,6 @@ int main( int argc, char * argv[] ) {
 
    SDL_Rect ** modes = SDL_ListModes( NULL, SDL_OPENGL );
 
-
-
    if ( argc < 2 ) { 
       char * n;
       fprintf( stderr, "usage: %s [md5MeshFile]\n",
@@ -72,7 +72,6 @@ int main( int argc, char * argv[] ) {
                        argv[1], strerror( errno ) );
       exit( 1 );
    }
-
 
 
    if ( modes == NULL ) {
@@ -88,11 +87,7 @@ int main( int argc, char * argv[] ) {
       }
    }
 
-
-
    renderContext->Initialize();
-
-
 
    GL_Version = strtod( (char *)glGetString( GL_VERSION ), NULL );
    if ( GL_Version < 2.1f ) {
@@ -121,22 +116,19 @@ int main( int argc, char * argv[] ) {
    RenderStateFactory * rsFactory = new RenderStateFactory( renderContext );
    Md5RenderState * md5State = rsFactory->Md5FromShaderNames( "shader/md5skel.vtx",
                                                               "shader/test.frg" );
-
+   Md5Factory * md5Factory = new Md5Factory( md5State );
 
    renderContext->SetState( md5State );
 
+   Md5Model * foo = md5Factory->FromName( argv[1] );
+
    gfxInitBitMapFont();
-
-
-   //md5BaseMesh     * base = md5LoadMesh( meshFile );
-   //md5BufferedMesh * mesh = md5BufferMesh( base );
 
    SDL_Event event;
 
    int keepGoing = 1;
 
    for ( i = 0; keepGoing; ++i ) {
-      //int j;
 
       gfxRegisterFrame();
 
@@ -145,25 +137,14 @@ int main( int argc, char * argv[] ) {
 
       renderContext->SetPerspective( 45.0f, 0.01f, 100.0f );
 
-#if 0
-      // md5 Drawing Code.
-      md5LoadState();
+      renderContext->SetState( md5State );
 
-      for ( j = 0; j < base->numJoints; ++j ) {
-         md5SetJoint( j, base->joints[j].position, base->joints[j].orient );
-      }
+      renderContext->SetModel( foo );
 
-      md5PrepareMesh( mesh );
+      glTranslatef( 0, 0, -2 );
 
-      glTranslatef( 0.0f, 0.0f, -4.0f );
+      foo->DrawStatic();
 
-      glRotatef( 1.0f * i, 0.0f, 1.0f, 0.0f );
-
-      md5DrawMesh();
-
-      md5ExitState();
-
-#endif
       // Overlay drawing code.
       renderContext->SetOrthographic();
 
