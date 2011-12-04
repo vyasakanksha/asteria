@@ -86,7 +86,13 @@ namespace asteria {
          numTris  += meshDat.meshes[i].numTris;
       }
       bindPoseVerts = new vec3[numVerts];
+      for ( int i = 0; i < numVerts; ++i ) {
+         bindPoseVerts[i] = (vec3){ 0, 0, 0, 0 };
+      }
       bindPoseNorms = new vec3[numVerts];
+      for ( int i = 0; i < numVerts; ++i ) {
+         bindPoseNorms[i] = (vec3){ 0, 0, 0, 0 };
+      }
 
       pRef = new char[( sizeof( GLfloat ) + sizeof( vec3 ) ) * 8 * numVerts];
 
@@ -212,6 +218,7 @@ namespace asteria {
 
       return ret;
    }
+
    md5BufferedMesh * Md5Factory::bufferMesh( md5BaseMesh * mesh ) {
       md5BufferedMesh * ret = new md5BufferedMesh();
       int i;

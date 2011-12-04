@@ -141,7 +141,9 @@ int main( int argc, char * argv[] ) {
 
       renderContext->SetModel( foo );
 
-      glTranslatef( 0, 0, -2 );
+      glTranslatef( 0, 0, -4 );
+
+      glRotatef( i * 0.4, 0, 1, 0 );
 
       foo->DrawStatic();
 
