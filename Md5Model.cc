@@ -49,14 +49,13 @@ namespace asteria {
 
    bool Md5Model::DrawStatic( void ) {
       for ( int i = 0; i < baseMesh->numJoints; ++i ) {
-         md5Joint * j = baseMesh->joints;
+         md5Joint * j = baseMesh->joints + i;
          renderState->SetJoint( i, j->position, j->orient );
       }
 
-      glDrawElements( GL_TRIANGLES, baseMesh->numTris * 3,
+      glDrawElements( GL_TRIANGLES, bufferedMesh->nIdx,
                       GL_UNSIGNED_INT, (GLvoid * )0 );
       return true;
    }
 
 };
-
