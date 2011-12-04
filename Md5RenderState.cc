@@ -54,14 +54,14 @@ namespace asteria {
       glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, bMesh->iBuf );
 
       glVertexAttribPointer( varJoints, 4, GL_FLOAT, GL_FALSE,
-            sizeof( GLfloat ) * 4, bMesh->jIndex );
+                             sizeof( GLfloat ) * 4, bMesh->jIndex );
       glVertexAttribPointer( varBiases, 4, GL_FLOAT, GL_FALSE,
-            sizeof( GLfloat ) * 4, bMesh->biases );
+                             sizeof( GLfloat ) * 4, bMesh->biases );
       for ( int i = 0; i < 4; ++i ) {
          glVertexAttribPointer( varPositions + i, 4, GL_FLOAT, GL_FALSE,
-               sizeof( vec3 ), bMesh->positions[i] );
+                                sizeof( vec3 ), bMesh->positions[i] );
          glVertexAttribPointer( varNormals + i, 4, GL_FLOAT, GL_FALSE,
-               sizeof( vec4 ), bMesh->normals[i] );
+                                sizeof( vec4 ), bMesh->normals[i] );
       }
       return true;
    }
