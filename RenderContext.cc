@@ -147,7 +147,7 @@ namespace asteria {
       glGetProgramiv( ret, GL_LINK_STATUS, &status );
 
       //if ( status != GL_TRUE ) {
-         glGetShaderInfoLog( ret, shaderBufferSize, &status, shaderBuffer );
+         glGetProgramInfoLog( ret, shaderBufferSize, &status, shaderBuffer );
          shaderBuffer[status] = '\0';
          FPrintf( Stderr, "%s", shaderBuffer );
       //}
