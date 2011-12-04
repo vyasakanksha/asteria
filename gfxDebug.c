@@ -36,18 +36,20 @@ float gfxGetFrameRate( void ) {
 
 void gfxDrawDbgHUD( void ) {
 
+   GLint err = glGetError();
+
    float offset;
 
    offset = gfxDrawDbgTextFmt( 0.01, 0.0, 0.02,  "GL Error:   " );
 
-   if ( glGetError() != GL_NO_ERROR ) {
+   if ( err != GL_NO_ERROR ) {
       glColor3f( 1, 0, 0 );
    } else {
       glColor3f( .6, .6, 1 );
    }
 
    gfxDrawDbgTextFmt( offset, 0.0, 0.02, "%s",
-                      gluErrorString( glGetError() ) );
+                      gluErrorString( err ) );
 
    glColor3f( .8, .8, .8 );
    gfxDrawDbgTextFmt( 0.01, 0.02, 0.02, "%2.2f fps", gfxGetFrameRate() );
