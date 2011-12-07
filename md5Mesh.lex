@@ -34,9 +34,8 @@
       yylloc->first_column = yylloc->last_column;                             \
       yylloc->last_column += strlen( yytext );                               \
    }
-
-   static int lineno = 1;
 %}
+
 
 %option reentrant noyywrap bison-bridge bison-locations noinput nounput
 
@@ -75,13 +74,12 @@
 
 [ \t]                   { ; }
 
-"\n"                    { lineno++; }
+"\n"                    { yylloc->first_line++; }
 
 %%
 
-void md5mesherror( YYLTYPE * loc, void * yyscanner,
-                   md5MeshData * blah, const char * err ) {
+void md5mesherror( YYLTYPE * loc, void * , void * , const char * err ) {
    fprintf( stderr, "md5Mesh: %d error: %s\n",
-                    lineno,
+                    loc->first_line,
                     err );
 }

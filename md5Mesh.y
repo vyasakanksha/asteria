@@ -30,7 +30,7 @@
 
    extern int md5meshlex( YYSTYPE *, YYLTYPE *, void * );
    extern int md5mesherror( YYLTYPE * loc, void * ,
-                            md5MeshData *, const char * );
+                            void * , const char * );
 
    static int jointIdx, meshIdx;
 %}
