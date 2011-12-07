@@ -38,6 +38,10 @@ namespace asteria {
       private:
          Md5RenderState * renderState;
 
+         void topoSortJoints( md5Joint ** in, int len );
+         void topoSortHelper( bool * handled,
+            md5Joint ** in, md5Joint ** out, int idx, int & outIdx );
+
          md5AnimData     * loadAnim( alt::Reader & r );
          md5BaseMesh     * loadMesh( alt::Reader & r );
          md5BufferedMesh * bufferMesh( md5BaseMesh * mesh );

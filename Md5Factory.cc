@@ -58,6 +58,8 @@ namespace asteria {
 
       md5AnimData * ret = new md5AnimData;
 
+      md5Joint * jPointers = new md5Joint[Md5RenderState::MaxJoints];
+
       // Initialize the reentrant parser
 
       md5animlex_init( &scanner );
@@ -69,10 +71,42 @@ namespace asteria {
       // Get rid of the data allocated for the scanner, we're done with it.
       md5animlex_destroy( scanner );
 
-      // Akanksha: Put your code after this. The call to 'md5animparse()'
-      // loaded up 'ret' with the animation data.
-
+      topoSortJoints( jPointers, ret->numJoints );
+      
       return ret;
+   }
+
+   // A Topological Sort function
+   // Based on wikipedia article for topological sort =].
+   void Md5Factory::topoSortJoints( md5Joint ** in, int len ) {
+      int i;
+      int outIdx = 0;
+      md5Joint * out[Md5RenderState::MaxJoints];
+      bool handled[Md5RenderState::MaxJoints] = {
+         [0 ... (Md5RenderState::MaxJoints - 1)] = false
+      };
+
+      for( i = 0; i < len; i++ ) {
+         topoSortHelper( handled, in, out, 0, outIdx );
+      }
+
+      for( i = 0; i < len; i++ ) {
+         in[i] = out[i];
+      }
+
+   }
+
+   void Md5Factory::topoSortHelper( bool * handled, md5Joint ** in, 
+   md5Joint ** out, int i, int & outIdx ){
+      if( handled[i] ) {
+         return;
+      } else if( ( in[i]->parent != -1 ) && ( !handled[in[i]->parent] )) {
+         topoSortHelper( handled, in, out, in[i]->parent, outIdx );
+      }
+ 
+      handled[i] = true;
+      out[outIdx] = in[i];
+      outIdx++;
    }
 
    md5BaseMesh * Md5Factory::loadMesh( Reader & r ) {
