@@ -21,14 +21,24 @@
  ****************************************************************************/
 
 %{    
-#include <stdlib.h>
-#include "md5Anim.h"
+   #include <stdlib.h>
 
-static int lineno = 1;  /* To keep track of the line number for debugging */
-void md5animerror( void *, const char * );
+   #include "altio.h"
+
+   #include "md5Anim.h"
+
+   #define YY_INPUT( buf, res, size )                                         \
+   ( res ) = yyget_extra( yyscanner )->Read( ( buf ), ( size ) )
+   #define YY_EXTRA_TYPE alt::Reader *
+   #define YY_USER_ACTION {                                                   \
+      yylloc->first_column = yylloc->last_column;                             \
+      yylloc->last_column += strlen( yytext );                               \
+   }
+
+
 %}
 
-%option noinput nounput
+%option reentrant noyywrap bison-bridge bison-locations noinput nounput
 
 %%
 
@@ -44,27 +54,23 @@ bounds                     { return TOK_BOUNDS;                            }
 baseframe                  { return TOK_BFRAME;                            }
 frame                      { return TOK_FRAME;                             }
 [(){}]                     { return yytext[0];                             }
-"\n"                       { lineno++;                                     }
-"-"?[0-9]+"."[0-9]+        { md5animlval.rVal = strtod( yytext, NULL );
+"\n"                       { yylloc->first_line++;                          }
+"-"?[0-9]+"."[0-9]+        { yylval->rVal = strtod( yytext, NULL );
                                     return TOK_FNUM;                       }
-"-"?[0-9]+                 { md5animlval.zVal = strtod( yytext, NULL );
+"-"?[0-9]+                 { yylval->zVal = strtod( yytext, NULL );
                                      return TOK_ZNUM;                      }
-\"[^\n\"]*\"               { md5animlval.sVal = strdup( yytext ); 
+\"[^\n\"]*\"               { yylval->sVal = strdup( yytext ); 
                                                 return TOK_STRING;         }
 
 [\r\t ]                    { ; }
+
 %%
 
-/* I have no idea what this does, but without this function, everything breaks */
-int md5animwrap( void )
-{
-   return 1;
-}
-
 /* Prints the error and associated string, if it occurs */
-void md5animerror( void *, const char * err )
+void md5animerror( YYLTYPE * loc, void * , void * , const char * err )
 {
-   fprintf( stderr, "md5anim error: %s at line <%d> \n", err, lineno );
+   fprintf( stderr, "md5anim error: %s at line <%d> \n", err,
+   loc->first_line );
 }
 
 /* md5Anim.lex */

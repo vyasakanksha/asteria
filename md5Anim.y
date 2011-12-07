@@ -25,10 +25,15 @@
 %{
    #include <stdio.h>
    #include <math.h>
+
+   #include "altio.h"
+
+   #include "md5Anim.h"
+
    #include "md5Structures.h"
 
-   extern int md5animlex( void );
-   extern void md5animerror( void *, const char * );
+   extern int md5animlex( YYSTYPE * , YYLTYPE * , void * );
+   extern void md5animerror( YYLTYPE *, void *, void *, const char * );
 
    static int *jointFlags, baseFrameIdx, frameIdx, jointIdx, bit;
 
@@ -75,8 +80,14 @@
 %token         TOK_STRING           "string"
 
 
+%pure_parser
+%locations
+
 %error-verbose
-%parse-param{ md5AnimData * anim }
+
+%parse-param{void * scan}
+%parse-param{md5AnimData * anim}
+%lex-param{void * scan}
 
 %union
 {
