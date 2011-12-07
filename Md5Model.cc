@@ -42,8 +42,62 @@ namespace asteria {
       return true;
    }
 
+ 
    bool Md5Model::DrawFrame( int anim, int time ) {
-      // TODO: Implement this function! Akanksha: This is your thing =].
+      int i;
+      vec3 rotPos;
+      vec4 temp;
+      int lastFrame;
+      float t = 0;
+      md5Joint tempJoint;
+      md5AnimFrame curFrame;
+
+      vec4 tempPos; 
+      vec4 tempPos1;
+
+      lastFrame = time / animData->frameDur;
+      t = ( time / animData->frameDur ) - lastFrame;
+
+      
+      for( i = 0; i < animData->numJoints; ++i ) {
+
+      curFrame.joints[i].parent = animData->frames[lastFrame].joints[i].parent;
+         if( t != 0 ) {
+
+            tempPos = (vec4) animData->frames[lastFrame].joints[i].position;
+            tempPos1 = (vec4) animData->frames[lastFrame + 1].joints[i].position;
+            curFrame.joints[i].position = qtLERP( tempPos, tempPos1, t );
+            curFrame.joints[i].orient = 
+               qtNLERP( animData->frames[lastFrame].joints[i].orient,
+                        animData->frames[lastFrame + 1].joints[i].orient, t );
+         } else {
+            curFrame.joints[i].position = 
+               animData->frames[lastFrame].joints[i].position;
+            curFrame.joints[i].orient = 
+               animData->frames[lastFrame].joints[i].orient;
+         }
+         
+         // Add positions
+         rotPos = qtRotate( 
+               curFrame.joints[curFrame.joints[i].parent].orient,
+               curFrame.joints[i].position );
+         tempJoint.position = rotPos + 
+               curFrame.joints[curFrame.joints[i].parent].position;
+         
+         // Concatenate Rotations
+         temp = qtMul( curFrame.joints[curFrame.joints[i].parent].orient,
+                       curFrame.joints[i].orient );
+
+         curFrame.joints[i].orient = v4Normalize(temp);
+
+
+         renderState->SetJoint( i, curFrame.joints[i].position, 
+                                curFrame.joints[i].orient );
+      }
+
+      glDrawElements( GL_TRIANGLES, bufferedMesh->nIdx,
+                      GL_UNSIGNED_INT, (GLvoid * )0 );
+      
       return true;
    }
 
