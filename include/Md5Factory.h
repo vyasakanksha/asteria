@@ -38,6 +38,7 @@ namespace asteria {
       private:
          Md5RenderState * renderState;
 
+         md5AnimData     * loadAnim( alt::Reader & r );
          md5BaseMesh     * loadMesh( alt::Reader & r );
          md5BufferedMesh * bufferMesh( md5BaseMesh * mesh );
 

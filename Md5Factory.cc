@@ -32,6 +32,12 @@ extern void md5meshlex_init( md5meshscan_t * );
 extern void md5meshset_extra( Reader *, md5meshscan_t );
 extern void md5meshlex_destroy( md5meshscan_t );
 
+typedef void * md5animscan_t;
+extern int md5animparse( md5animscan_t , md5AnimData * );
+extern void md5animlex_init( md5animscan_t * );
+extern void md5animset_extra( Reader *, md5animscan_t );
+extern void md5animlex_destroy( md5animscan_t );
+
 namespace asteria {
    Md5Factory::Md5Factory( Md5RenderState * rS )
    : renderState( rS ) {}
@@ -47,9 +53,31 @@ namespace asteria {
       return new Md5Model( 0, NULL, baseMesh, bufferedMesh, renderState );
    }
 
+   md5AnimData * Md5Factory::loadAnim( Reader & r ) {
+      md5animscan_t scanner;
+
+      md5AnimData * ret = new md5AnimData;
+
+      // Initialize the reentrant parser
+
+      md5animlex_init( &scanner );
+      md5animset_extra( &r, scanner );
+
+      // Parse the input
+      md5animparse( scanner, ret );
+
+      // Get rid of the data allocated for the scanner, we're done with it.
+      md5animlex_destroy( scanner );
+
+      // Akanksha: Put your code after this. The call to 'md5animparse()'
+      // loaded up 'ret' with the animation data.
+
+      return ret;
+   }
+
    md5BaseMesh * Md5Factory::loadMesh( Reader & r ) {
       md5meshscan_t scanner;
-      md5BaseMesh   * ret = new md5BaseMesh();
+      md5BaseMesh   * ret = new md5BaseMesh;
       md5MeshData meshDat;
 
       vec3 * bindPoseVerts, // We need to calculate the bind-pose vertex
@@ -216,11 +244,19 @@ namespace asteria {
          }
       }
 
+      for ( i = 0; i < meshDat.numMeshes; i++ ) {
+         delete meshDat.meshes[i].verts;
+         delete meshDat.meshes[i].tris;
+         delete meshDat.meshes[i].weights;
+      }
+
+      delete meshDat.meshes;
+
       return ret;
    }
 
    md5BufferedMesh * Md5Factory::bufferMesh( md5BaseMesh * mesh ) {
-      md5BufferedMesh * ret = new md5BufferedMesh();
+      md5BufferedMesh * ret = new md5BufferedMesh;
       int i;
 
       glGenBuffers( 1, &( ret->vBuf ) );
