@@ -42,23 +42,24 @@ namespace asteria {
    Md5Factory::Md5Factory( Md5RenderState * rS )
    : renderState( rS ) {}
 
-   Md5Model * Md5Factory::FromName( const String & name ) {
-      File meshFile( name );
+   Md5Model * Md5Factory::FromName( const String & mesh,
+                                    const String & anim ) {
+      File meshFile( mesh );
+      File animFile( anim );
 
       md5BaseMesh     * baseMesh     = loadMesh( meshFile );
       md5BufferedMesh * bufferedMesh = bufferMesh( baseMesh );
+      md5AnimData     * animData     = loadAnim( animFile );
 
       meshFile.Close();
 
-      return new Md5Model( 0, NULL, baseMesh, bufferedMesh, renderState );
+      return new Md5Model( 0, animData, baseMesh, bufferedMesh, renderState );
    }
 
    md5AnimData * Md5Factory::loadAnim( Reader & r ) {
       md5animscan_t scanner;
 
       md5AnimData * ret = new md5AnimData;
-
-      md5Joint * jPointers = new md5Joint[Md5RenderState::MaxJoints];
 
       // Initialize the reentrant parser
 
@@ -71,8 +72,6 @@ namespace asteria {
       // Get rid of the data allocated for the scanner, we're done with it.
       md5animlex_destroy( scanner );
 
-      topoSortJoints( jPointers, ret->numJoints );
-      
       return ret;
    }
 
