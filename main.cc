@@ -120,7 +120,7 @@ int main( int argc, char * argv[] ) {
 
    renderContext->SetState( md5State );
 
-   Md5Model * foo = md5Factory->FromName( argv[1] );
+   Md5Model * foo = md5Factory->FromName( argv[1], argv[2] );
 
    gfxInitBitMapFont();
 

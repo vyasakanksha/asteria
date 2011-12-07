@@ -33,7 +33,8 @@ namespace asteria {
       public:
          Md5Factory( Md5RenderState * rS );
 
-         Md5Model * FromName( const alt::String & name );
+         Md5Model * FromName( const alt::String & name,
+                              const alt::String & anim );
 
       private:
          Md5RenderState * renderState;
