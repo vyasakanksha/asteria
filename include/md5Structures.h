@@ -134,9 +134,6 @@ typedef struct md5AnimData {
 
    md5Joint * baseFrame; // Joints in their base-frame position.
 
-   GLuint   * uPosition; // The glUniform indices for the joints' positions.
-   GLuint   * uOrient;   // The glUniform indices for the joints' orientations.
-
    int numFrames; // The number of frames in the model's animations.
 
    md5AnimFrame * frames; // A list of all frames.
