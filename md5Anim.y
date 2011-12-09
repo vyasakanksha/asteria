@@ -91,8 +91,8 @@
 
 %union
 {
-   float rVal;
-   int zVal;
+   float  rVal;
+   int    zVal;
    char * sVal;
 }
 
@@ -180,14 +180,14 @@ baseframeValues
             .z = $4,
             .w = 0.0f
            }
-        }).vec,
+        }).xyz,
         .orient = (vec4)((vec4_u){ {
            .x = $7,
            .y = $8,
            .z = $9,
            .w = ( ( sq = ( $7 * $7  +  $8 * $8  +  $9 * $9 ) ) < 1.0f 
                 ? -sqrt( 1.0f - sq )
-                : 0.0f ) 
+                : 0.0f )
           }
         }).vec
       };
@@ -205,27 +205,29 @@ frameSet
       int i;
       jointIdx = 0; bit = 1, frameIdx = $2;
       for( i = 0; i < anim->numJoints; i++ ) {
-         anim->frames[$2].joints[i].parent = anim->baseFrame[i].parent;
+         anim->frames[$2].joints[i].parent   = anim->baseFrame[i].parent;
+         anim->frames[$2].joints[i].position = anim->baseFrame[i].position;
+         anim->frames[$2].joints[i].orient   = anim->baseFrame[i].orient;
       }
    } '{' frameValues '}' 
    ;     
 
 frameValues
    : frameValues "real" {
-     while (( bit & jointFlags[jointIdx] ) == 0 ) {
-         assignJointBit( &anim->frames[frameIdx].joints[jointIdx], bit, 0.0f );
+      while ( ( bit & jointFlags[jointIdx] ) == 0 ) {
+         // assignJointBit( &anim->frames[frameIdx].joints[jointIdx], bit, 0.0f );
          bit = bit << 1;
-        if( bit > 32 ) {
-           bit = 1;
-           jointIdx++;
-        }
-     }  
-     assignJointBit( &anim->frames[frameIdx].joints[jointIdx], bit, $2 );
-     bit = bit << 1;
-     if( bit > 32 ) {
-        bit = 1;
-        jointIdx++;
-     }
+         if( bit > 32 ) {
+            bit = 1;
+            jointIdx++;
+         }
+      }  
+      assignJointBit( &anim->frames[frameIdx].joints[jointIdx], bit, $2 );
+      bit = bit << 1;
+      if( bit > 32 ) {
+         bit = 1;
+         jointIdx++;
+      }
    }
    | /* epsilon */          
    ;
