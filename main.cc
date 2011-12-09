@@ -145,7 +145,7 @@ int main( int argc, char * argv[] ) {
 
       glRotatef( i * 0.4, 0, 1, 0 );
 
-      foo->DrawStatic();
+      foo->DrawFrame( 0, SDL_GetTicks() / 100 + 50 );
 
       // Overlay drawing code.
       renderContext->SetOrthographic();

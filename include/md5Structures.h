@@ -128,7 +128,7 @@ typedef struct md5AnimFrame {
 // This structure provides all of the information necessary to determine bone
 // positions for a model at a given time.
 typedef struct md5AnimData {
-   float frameDur; // The number of milliseconds per frame.
+   int frameRate; // The number of frames per second
 
    int numJoints;  // The number of joints in the model.
 

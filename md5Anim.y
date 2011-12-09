@@ -116,7 +116,7 @@ md5Anim
         }
      }
      "frameRate" "int"  { 
-        anim->frameDur = 1000/$8;
+        anim->frameRate = $8;
      }
      "numAnimatedComponents" "int" {
         jointFlags = new int[$11];
@@ -185,8 +185,9 @@ baseframeValues
            .x = $7,
            .y = $8,
            .z = $9,
-           .w = (( sq = ( $7 * $7  +  $8 * $8  +  $9 * $9 )) < 1.0f 
-                ? -sqrt( 1.0f - sq ) : 0.0f ) 
+           .w = ( ( sq = ( $7 * $7  +  $8 * $8  +  $9 * $9 ) ) < 1.0f 
+                ? -sqrt( 1.0f - sq )
+                : 0.0f ) 
           }
         }).vec
       };

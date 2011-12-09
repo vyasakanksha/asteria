@@ -44,60 +44,83 @@ namespace asteria {
 
  
    bool Md5Model::DrawFrame( int anim, int time ) {
-      int i;
-      vec3 rotPos;
-      vec4 temp;
-      int lastFrame;
+      int lastFrame, nextFrame;
       float t = 0;
-      md5Joint tempJoint;
-      md5AnimFrame curFrame;
 
-      vec4 tempPos; 
-      vec4 tempPos1;
+      // Allocate a temporary frame, use stack space to store joints
+      vec3 positions[Md5RenderState::MaxJoints];
+      vec4 rotations[Md5RenderState::MaxJoints];
+      float msPerFrame;
 
-      lastFrame = time / animData->frameDur;
-      t = ( time / animData->frameDur ) - lastFrame;
+      // FIXME: This assumes we are always drawing the same animation, etc, etc
+      time = time % ( ( animData->numFrames * 1000 ) / animData->frameRate );
 
-      
-      for( i = 0; i < animData->numJoints; ++i ) {
+      lastFrame = ( animData->frameRate * time ) / 1000;
+      nextFrame = lastFrame + 1;
 
-      curFrame.joints[i].parent = animData->frames[lastFrame].joints[i].parent;
-         if( t != 0 ) {
+      msPerFrame = 1000.0f / float( animData->frameRate );
+      // 't' is in the range [0,1) and tells us how far we are between
+      // lastFrame and nextFrame. Note that the variable 'lastFrame' is an
+      // integral type, and hence the above division implies 'floor()'.
+      t = ( float( time ) - msPerFrame * float( lastFrame ) ) / msPerFrame;
 
-            tempPos = (vec4) animData->frames[lastFrame].joints[i].position;
-            tempPos1 = (vec4) animData->frames[lastFrame + 1].joints[i].position;
-            curFrame.joints[i].position = qtLERP( tempPos, tempPos1, t );
-            curFrame.joints[i].orient = 
-               qtNLERP( animData->frames[lastFrame].joints[i].orient,
-                        animData->frames[lastFrame + 1].joints[i].orient, t );
+      for ( int i = 0; i < animData->numJoints; ++i ) {
+         vec3 pos;
+         vec4 rot;
+         int parent;
+
+         parent = animData->baseFrame[i].parent;
+         if ( t != 0.0f && ( nextFrame < animData->numFrames ) ) {
+
+            vec3 lastPos, nextPos;
+            vec3 lastRot, nextRot;
+
+            // Get the positions of the frames we are between
+            lastPos = animData->frames[lastFrame].joints[i].position;
+            nextPos = animData->frames[nextFrame].joints[i].position;
+
+            // Interpolate between the positions with LERP
+            pos = v3LERP( lastPos, nextPos, t );
+
+            // Now get their rotations
+            lastRot = animData->frames[lastFrame].joints[i].orient;
+            nextRot = animData->frames[nextFrame].joints[i].orient;
+
+            // Interpolate between the rotations with NLERP
+            rot = qtNLERP( lastRot, nextRot, t );
+
          } else {
-            curFrame.joints[i].position = 
-               animData->frames[lastFrame].joints[i].position;
-            curFrame.joints[i].orient = 
-               animData->frames[lastFrame].joints[i].orient;
+
+            // We're on the final frame, so we just grab position and
+            // orientation. There's nothing to interpolate.
+            pos = animData->frames[lastFrame].joints[i].position;
+            rot = animData->frames[lastFrame].joints[i].orient;
+
          }
-         
-         // Add positions
-         rotPos = qtRotate( 
-               curFrame.joints[curFrame.joints[i].parent].orient,
-               curFrame.joints[i].position );
-         tempJoint.position = rotPos + 
-               curFrame.joints[curFrame.joints[i].parent].position;
-         
-         // Concatenate Rotations
-         temp = qtMul( curFrame.joints[curFrame.joints[i].parent].orient,
-                       curFrame.joints[i].orient );
 
-         curFrame.joints[i].orient = v4Normalize(temp);
+         if ( parent != -1 ) {
+            // Rotate our position by the parent's orientation
+            pos = qtRotate( rotations[parent], pos );
 
+            // Add positions
+            pos += positions[parent];
 
-         renderState->SetJoint( i, curFrame.joints[i].position, 
-                                curFrame.joints[i].orient );
+            // Concatenate Rotations
+            rot = qtMul( rot, rotations[parent] );
+
+         }
+
+         positions[i] = pos;
+         rotations[i] = v4Normalize( rot );
+
+         renderState->SetJoint( i, pos, rot );
+
       }
+
 
       glDrawElements( GL_TRIANGLES, bufferedMesh->nIdx,
                       GL_UNSIGNED_INT, (GLvoid * )0 );
-      
+
       return true;
    }
 
