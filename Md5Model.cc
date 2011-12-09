@@ -20,6 +20,8 @@
 
 #include "Md5Model.h"
 
+#include <math.h>
+
 namespace asteria {
 
    Md5Model::Md5Model( unsigned rID, md5AnimData * aD,
@@ -43,7 +45,7 @@ namespace asteria {
    }
 
  
-   bool Md5Model::DrawFrame( int anim, int time ) {
+   bool Md5Model::DrawFrame( int anim, float time ) {
       int lastFrame, nextFrame;
       float t = 0;
 
@@ -53,16 +55,17 @@ namespace asteria {
       float msPerFrame;
 
       // FIXME: This assumes we are always drawing the same animation, etc, etc
-      time = time % ( ( animData->numFrames * 1000 ) / animData->frameRate );
+      time = fmod( time, ( ( animData->numFrames - 1 ) * 1000 ) 
+           / animData->frameRate );
 
       lastFrame = ( animData->frameRate * time ) / 1000;
-      nextFrame = lastFrame + 1;
+      nextFrame = ( lastFrame + 1 == animData->numFrames ? 0 : lastFrame + 1 );
 
       msPerFrame = 1000.0f / float( animData->frameRate );
       // 't' is in the range [0,1) and tells us how far we are between
       // lastFrame and nextFrame. Note that the variable 'lastFrame' is an
       // integral type, and hence the above division implies 'floor()'.
-      t = ( float( time ) - msPerFrame * float( lastFrame ) ) / msPerFrame;
+      t = ( time - msPerFrame * float( lastFrame ) ) / msPerFrame;
 
       for ( int i = 0; i < animData->numJoints; ++i ) {
          vec3 pos;
@@ -70,7 +73,8 @@ namespace asteria {
          int parent;
 
          parent = animData->baseFrame[i].parent;
-         if ( t != 0.0f && ( nextFrame < animData->numFrames ) ) {
+
+         if ( t > 0.01f ) {
 
             vec3 lastPos, nextPos;
             vec3 lastRot, nextRot;
@@ -106,12 +110,14 @@ namespace asteria {
             pos += positions[parent];
 
             // Concatenate Rotations
-            rot = qtMul( rot, rotations[parent] );
+            rot = qtMul( rotations[parent], rot );
 
          }
 
+         rot = v4Normalize( rot );
+
          positions[i] = pos;
-         rotations[i] = v4Normalize( rot );
+         rotations[i] = rot;
 
          renderState->SetJoint( i, pos, rot );
 

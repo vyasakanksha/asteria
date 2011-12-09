@@ -102,9 +102,6 @@ int main( int argc, char * argv[] ) {
       printf( "Detected OpenGL Version %2.1f, Have Fun!\n", GL_Version );
    }
 
-
-
-
    if ( GLEW_OK != glewInit() ) {
       fprintf( stderr, "GLEW Failed to initialize.\n" );
       SDL_Quit();
@@ -143,9 +140,13 @@ int main( int argc, char * argv[] ) {
 
       glTranslatef( 0, 0, -4 );
 
-      glRotatef( i * 0.4, 0, 1, 0 );
+      glRotatef( i * 0.8, 0, 1, 0 );
+      //glRotatef( -90, 1, 0, 0 );
 
-      foo->DrawFrame( 0, SDL_GetTicks() / 100 + 50 );
+      // Draw the animation at 1/4 speed
+      foo->DrawFrame( 0, float( SDL_GetTicks() ) );
+
+      //foo->DrawStatic();
 
       // Overlay drawing code.
       renderContext->SetOrthographic();
