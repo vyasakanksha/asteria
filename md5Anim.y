@@ -209,7 +209,23 @@ frameSet
          anim->frames[$2].joints[i].position = anim->baseFrame[i].position;
          anim->frames[$2].joints[i].orient   = anim->baseFrame[i].orient;
       }
-   } '{' frameValues '}' 
+   } '{' frameValues '}' {
+      for ( int i = 0; i < anim->numJoints; i++ ) {
+         GLfloat t;
+         vec4_u v = { .vec = anim->frames[$2].joints[i].orient };
+
+         t = v3Dot( v.xyz, v.xyz );
+         v.w = ( t < 1.0f
+               ? -sqrt( 1.0 - t )
+               : 0.0f );
+
+         anim->frames[$2].joints[i].orient = v.vec;
+
+         v.vec = anim->frames[$2].joints[i].position;
+         v.w = 0.0f;
+         anim->frames[$2].joints[i].position = v.vec; 
+      }
+   }
    ;     
 
 frameValues
