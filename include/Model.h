@@ -43,7 +43,7 @@ namespace asteria {
 
          // 'anim' is the number of the animation sequence being rendered.
          // 'time' is the number of milliseconds since the animation started.
-         virtual bool DrawFrame( int anim, int time ) = 0;
+         virtual bool DrawFrame( int anim, float time ) = 0;
 
          virtual bool DrawStatic( void ) = 0;
 

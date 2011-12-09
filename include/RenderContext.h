@@ -80,7 +80,7 @@ namespace asteria {
             public:
                virtual bool StageModel( void )              { return true; }
                virtual bool UnstageModel( void )            { return true; }
-               virtual bool DrawFrame( int anim, int time ) { return true; }
+               virtual bool DrawFrame( int anim, float time ) { return true; }
                virtual bool DrawStatic( void )              { return true; }
          } dModel;
          static class dummyState : public RenderState {

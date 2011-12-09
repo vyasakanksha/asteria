@@ -45,7 +45,7 @@ namespace asteria {
          virtual bool UnstageModel( void );
 
          // Draw animation 'anim' at 'time' milliseconds.
-         virtual bool DrawFrame( int anim, int time );
+         virtual bool DrawFrame( int anim, float time );
 
          // Draws the base mesh.
          virtual bool DrawStatic( void );
