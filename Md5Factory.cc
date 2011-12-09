@@ -158,8 +158,8 @@ namespace asteria {
       pRef = new char[( sizeof( GLfloat ) + sizeof( vec3 ) ) * 8 * numVerts];
 
       // Distribute memory pointed to by pRef among the different fields of the
-      // return struct. We could be a bit less verbose with the pointer arithmetic
-      // here, but for the sake of clarity, we'll leave it explicit.
+      // return struct. We could be a bit less verbose with the pointer
+      // arithmetic here, but for the sake of clarity we'll leave it explicit.
       *ret = (md5BaseMesh){
          .numVerts  = numVerts,
          .jIndex    = (GLfloat (*)[4])pRef,
@@ -223,9 +223,9 @@ namespace asteria {
             // Mark all other weights as unused and make sure their bias is 0
             for ( ; k < 4; ++k ) {
                // Make sure unused weights don't screw with the shader.
-               ret->jIndex[meshBase + j][k] = -1.0f; // -1 indicates this weight
-                                                     // is unused
-               ret->biases[meshBase + j][k] =  0.0f; // a bias of 0 ensures that
+               ret->jIndex[meshBase + j][k] = -1.0f; // -1 indicates weight is
+                                                     // unused
+               ret->biases[meshBase + j][k] =  0.0f; // a bias of 0 ensures any
                                       // garbage data doesn't affect the vertex
                ret->positions[k][meshBase + j] = (vec3){ 0.0f, 0.0f, 0.0f, 0.0f };
             }
@@ -233,10 +233,11 @@ namespace asteria {
             // The vertices were initialized to 0 by calloc, so we can just
             // start accumulating.
             for ( k = 0; k < mesh->verts[j].countWeight; ++k ) {
+               int jIdx = (int)ret->jIndex[j][k];
                // Calculate the position of this weight
-               vec3 pos = qtRotate( meshDat.joints[(int)ret->jIndex[j][k]].orient,
+               vec3 pos = qtRotate( meshDat.joints[jIdx].orient,
                                     ret->positions[k][j] )
-                        + meshDat.joints[(int)ret->jIndex[j][k]].position;
+                        + meshDat.joints[jIdx].position;
 
                // Add the biased vector to the vertex's location
                curVerts[j] += v3Scale( ret->biases[j][k], pos );
@@ -245,20 +246,27 @@ namespace asteria {
 
          // Calculate vertex normals for the current bind-pose mesh.
          for ( j = 0; j < mesh->numTris; ++j ) {
-            vec3 A, B;
-            A = curVerts[mesh->tris[j].vtx3] - curVerts[mesh->tris[j].vtx1];
-            B = curVerts[mesh->tris[j].vtx2] - curVerts[mesh->tris[j].vtx1];
+            vec3 A, B, norm;
+
+            int v1 = mesh->tris[j].vtx1,
+                v2 = mesh->tris[j].vtx2,
+                v3 = mesh->tris[j].vtx3;
+
+            A = curVerts[v3] - curVerts[v1];
+            B = curVerts[v2] - curVerts[v1];
+
+            norm = v3Cross( A, B );
 
             // Add this face's normal vector to all other normal vectors for
             // each of the face's vertices.
-            curNorms[mesh->tris[j].vtx1] += v3Cross( A, B );
-            curNorms[mesh->tris[j].vtx2] += v3Cross( A, B );
-            curNorms[mesh->tris[j].vtx3] += v3Cross( A, B );
+            curNorms[v1] += norm;
+            curNorms[v2] += norm;
+            curNorms[v3] += norm;
 
             // Record the indices for accessing the vertex arrays
-            curIdx[( j * 3 ) + 0] = meshBase + mesh->tris[j].vtx1;
-            curIdx[( j * 3 ) + 1] = meshBase + mesh->tris[j].vtx2;
-            curIdx[( j * 3 ) + 2] = meshBase + mesh->tris[j].vtx3;
+            curIdx[( j * 3 ) + 0] = meshBase + v1;
+            curIdx[( j * 3 ) + 1] = meshBase + v2;
+            curIdx[( j * 3 ) + 2] = meshBase + v3;
          }
 
          idxBase  += mesh->numTris * 3;
@@ -270,8 +278,9 @@ namespace asteria {
       for ( i = 0; i < numVerts; ++i ) {
          vec3 norm = v3Normalize( bindPoseNorms[i] );
          for ( j = 0; j < 4 && ret->jIndex[i][j] != -1; ++j ) {
+            int jIdx = (int)ret->jIndex[i][j];
             // Find the quaternion to rotate the normal around.
-            vec4 conj = qtConjugate( meshDat.joints[(int)ret->jIndex[i][j]].orient );
+            vec4 conj = qtConjugate( meshDat.joints[jIdx].orient );
             // Rotate it!
             ret->normals[j][i] = qtRotate( conj, norm );
          }
