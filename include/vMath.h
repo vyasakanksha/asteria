@@ -128,6 +128,9 @@ vec2 v2Normalize( vec2 op );
 __attribute__ ((pure))
 vec3 v3Normalize( vec3 op );
 
+__attribute__ ((pure))
+vec3 v3LERP( vec3 a, vec3 b, GLfloat t );
+
 // Returns a vector with magnitude 1, pointing in the same direction as 'op'.
 __attribute__ ((pure))
 vec4 v4Normalize( vec4 op );
@@ -155,9 +158,11 @@ __attribute__ ((pure))
 vec4 qtSLERP( vec4 a, vec4 b, GLfloat t );
 
 // Returns a Linear intERPolation of the two quaternions.
+__attribute__ ((pure))
 vec4 qtLERP( vec4 a, vec4 b, GLfloat t );
 
 // Returns a Normalized Linear intERPolation of the two quaternions.
+__attribute__ ((pure))
 vec4 qtNLERP( vec4 a, vec4 b , GLfloat t );
 
 

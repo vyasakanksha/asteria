@@ -65,6 +65,15 @@ vec4 v4Normalize( vec4 op ) {
    return v4Scale( 1.0f / sqrt( v4Dot( op, op ) ), op );
 }
 
+vec3 v3LERP( vec3 a, vec3 b, GLfloat t ) {
+   vec3 x, y;
+   
+   x = v3Scale( 1.0f - t, a );
+   y = v3Scale( t, b );
+
+   return x + y;
+}
+
 vec3 qtRotate( vec4 q, vec3 v ) {
    vec4_u qTmp = { .vec = q };
 
