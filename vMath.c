@@ -77,6 +77,10 @@ vec3 v3LERP( vec3 a, vec3 b, GLfloat t ) {
 vec3 qtRotate( vec4 q, vec3 v ) {
    vec4_u qTmp = { .vec = q };
 
+   vec4_u vTmp = { .vec = v };
+   vTmp.w = 0.0f;
+   v = vTmp.vec;
+
    /* Dot product of 3D components, the scalar component of the intermediate *
     * quaternion.                                                            */
    GLfloat dot = -v3Dot( qTmp.xyz, v );
@@ -126,7 +130,12 @@ vec4 qtMul( vec4 a, vec4 b ) {
 
 vec4 qtLERP( vec4 a, vec4 b, GLfloat t ) {
    vec4 x, y;
-   
+
+   GLfloat magCos = v4Dot( a, b );
+   if ( magCos < 0.0f ) {
+      a = -a;
+   }
+
    x = v4Scale( 1.0f - t, a );
    y = v4Scale( t, b );
 
