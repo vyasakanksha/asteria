@@ -27,8 +27,10 @@ namespace asteria {
 
       glEnableVertexAttribArray( varJoints );
       glEnableVertexAttribArray( varBiases );
-      glEnableVertexAttribArray( varPositions );
-      glEnableVertexAttribArray( varNormals );
+      for ( int i = 0; i < 4; ++i ) {
+         glEnableVertexAttribArray( varPositions + i );
+         glEnableVertexAttribArray( varNormals + i );
+      }
 
       return true;
    }
@@ -38,8 +40,10 @@ namespace asteria {
 
       glDisableVertexAttribArray( varJoints );
       glDisableVertexAttribArray( varBiases );
-      glDisableVertexAttribArray( varPositions );
-      glDisableVertexAttribArray( varNormals );
+      for ( int i = 0; i < 4; ++i ) {
+         glDisableVertexAttribArray( varPositions + i );
+         glDisableVertexAttribArray( varNormals + i );
+      }
 
       return true;
    }

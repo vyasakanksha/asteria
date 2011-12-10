@@ -140,8 +140,8 @@ int main( int argc, char * argv[] ) {
 
       glTranslatef( 0, 0, -4 );
 
-      glRotatef( i * 0.8, 0, 1, 0 );
-      //glRotatef( -90, 1, 0, 0 );
+      glRotatef( SDL_GetTicks() * 0.005, 0, 1, 0 );
+      glRotatef( -90, 1, 0, 0 );
 
       // Draw the animation at 1/4 speed
       foo->DrawFrame( 0, float( SDL_GetTicks() ) );
